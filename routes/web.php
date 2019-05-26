@@ -12,5 +12,10 @@
 */
 
 Route::get('/', function () {
-    return view('calendar');
+    return view('calendar.index');
+});
+
+
+Route::get('/doctor', function () {
+    return view('doctors.create');
 });

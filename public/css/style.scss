@@ -1,0 +1,96 @@
+// IMPORTS
+@import url('https://fonts.googleapis.com/css?family=Roboto:400,500,700&display=swap');
+
+// VARIABLES
+$main-color: #242939;
+$main-color-active: #1f2433;
+
+// EXTENDABLES
+%smoot-transition {
+    -webkit-transition: all 300ms ease;
+    -moz-transition: all 300ms ease;
+    -ms-transition: all 300ms ease;
+    -o-transition: all 300ms ease;
+    transition: all 300ms ease;
+}
+
+// GENERAL
+* {
+    font-family: Roboto, 'sans-serif';
+}
+
+body {
+    background-color: #f2f3f8;
+}
+
+// SIDE-MENU
+.side-menu {
+    position: relative;
+    width: 250px;
+    height: 100%;
+
+    > .fixed-top {
+        width: 250px;
+        height: 100%;
+        background-color: $main-color;
+    }
+
+    ul {
+        list-style: none;
+        padding-left: 0;
+    }
+
+    .side-nav-item {
+    }
+
+    .side-nav-link {
+        width: 100%;
+        text-align: left;
+        padding: 10px 15px;
+        box-shadow: none;
+        font-size: 16px;
+
+        &:hover, &:focus, &[aria-expanded=true] {
+            background-color: $main-color-active;
+
+            i {
+                color: #727cf5;
+            }
+
+
+            span + span {
+                transform: rotate(90deg);
+            }
+        }
+
+        i {
+            margin-right: 10px;
+            @extend %smoot-transition;
+        }
+
+        > span {
+            color: #fff;
+
+            & + span {
+                float: right;
+                margin-top: 3px;
+                @extend %smoot-transition;
+            }
+        }
+    }
+
+    .side-nav-second-level li a, .side-nav-third-level li a {
+        font-size: 15px;
+        padding-left: 30px;
+
+        &:hover, &:focus {
+            background-color: $main-color-active;
+        }
+    }
+}
+
+.content {
+    padding: 25px;
+}
+
+//
