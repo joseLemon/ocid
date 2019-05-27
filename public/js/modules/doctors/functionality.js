@@ -1,5 +1,6 @@
 $(document).ready(function () {
     let date = new Date(),
+        year = date.getFullYear(),
         removeEventById = (calendar, id) => {
             let event = calendar.getEventById(id);
             event.remove();
@@ -19,44 +20,45 @@ $(document).ready(function () {
                 });
         };
 
+    // Primero del mes
     date.setDate(1);
 
     let events = [
         {
-            start: '2019-01-01',
+            start: `${year}-01-01`,
             title: "Año Nuevo",
         },
         {
-            start: '2019-02-04',
+            start: `${year}-02-04`,
             title: "Día de la Constitución",
         },
         {
-            start: '2019-03-18',
+            start: `${year}-03-18`,
             title: "Natalicio de Benito Juárez",
         },
         {
-            start: '2019-04-18',
+            start: `${year}-04-18`,
             end: '2019-04-19',
             title: "Semana Santa",
         },
         {
-            start: '2019-05-01',
+            start: `${year}-05-01`,
             title: "Día del Trabajo",
         },
         {
-            start: '2019-09-16',
+            start: `${year}-09-16`,
             title: "Día de la Independencia",
         },
         {
-            start: '2019-11-02',
+            start: `${year}-11-02`,
             title: "Día de los Muertos",
         },
         {
-            start: '2019-11-20',
+            start: `${year}-11-20`,
             title: "Día de la Revolución Mexicana",
         },
         {
-            start: '2019-12-25',
+            start: `${year}-12-25`,
             title: "Navidad",
         },
     ];
@@ -69,13 +71,13 @@ $(document).ready(function () {
             plugins: ['bootstrap', 'dayGrid', 'interaction'],
             selectable: true,
             select: (obj) => {
-                let calendar = obj.view.calendar;
                 dateHasEvent(calendar, obj.start, obj.end);
 
                 calendar.addEventSource([{
                     id: generateUUID(),
                     start: obj.start,
                     end: obj.end,
+                    title: 'día libre',
                 }]);
                 calendar.unselect();
             },

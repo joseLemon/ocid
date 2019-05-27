@@ -19,3 +19,7 @@ Route::get('/', function () {
 Route::get('/doctor', function () {
     return view('doctors.create');
 });
+
+Auth::routes();
+
+Route::get('/home', 'HomeController@index')->name('home');
