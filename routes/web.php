@@ -11,15 +11,25 @@
 |
 */
 
-Route::get('/', function () {
-    return view('calendar.index');
-});
-
-
-Route::get('/doctor', function () {
-    return view('doctors.create');
-});
-
 Auth::routes();
 
-Route::get('/home', 'HomeController@index')->name('home');
+//Route::group(['middleware' => ['can:create-users']], function () {
+    Route::get('register', [
+        'as' => 'register',
+        'uses' => 'Auth\RegisterController@showRegistrationForm'
+    ]);
+//});
+
+
+//  Public web, but avoid access when logged.
+Route::group(['middleware' => '\App\Http\Middleware\Authenticate'], function () {
+
+    Route::get('/', function () {
+        return view('calendar.index');
+    });
+
+    Route::get('/doctor', function () {
+        return view('doctors.create');
+    });
+
+});

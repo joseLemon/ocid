@@ -18,10 +18,19 @@
 
     <!-- Styles -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+
+    <style>
+        .card {
+            border: none;
+            -webkit-box-shadow: 0px 0px 35px 0px rgba(154, 161, 171, 0.15);
+            box-shadow: 0px 0px 35px 0px rgba(154, 161, 171, 0.15);
+            margin-bottom: 30px;
+        }
+    </style>
 </head>
 <body>
-    <div id="app">
-        <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm">
+<div id="app">
+        <!--<nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm">
             <div class="container">
                 <a class="navbar-brand" href="{{ url('/') }}">
                     {{ config('app.name', 'Laravel') }}
@@ -31,14 +40,14 @@
                 </button>
 
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <!-- Left Side Of Navbar -->
+                    <!-- Left Side Of Navbar ->
                     <ul class="navbar-nav mr-auto">
 
                     </ul>
 
-                    <!-- Right Side Of Navbar -->
+                    <!-- Right Side Of Navbar ->
                     <ul class="navbar-nav ml-auto">
-                        <!-- Authentication Links -->
+                        <!-- Authentication Links ->
                         @guest
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ route('login') }}">{{ __('Login') }}</a>
@@ -70,11 +79,19 @@
                     </ul>
                 </div>
             </div>
-        </nav>
+        </nav>-->
 
-        <main class="py-4">
-            @yield('content')
-        </main>
-    </div>
+            <main class="py-4">
+                <div class="mt-5 mb-5">
+                    <div class="container">
+                        <div class="row justify-content-center">
+                            <div class="col-lg-5">
+                                @yield('content')
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+</div>
 </body>
 </html>
