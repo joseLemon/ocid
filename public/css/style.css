@@ -15,6 +15,10 @@ body {
   background-color: #f2f3f8;
 }
 
+table tbody tr td {
+  vertical-align: middle !important;
+}
+
 .side-menu {
   position: relative;
   width: 250px;
@@ -36,13 +40,13 @@ body {
   box-shadow: none;
   font-size: 16px;
 }
-.side-menu .side-nav-link:hover, .side-menu .side-nav-link:focus, .side-menu .side-nav-link[aria-expanded=true] {
+.side-menu .side-nav-link:focus, .side-menu .side-nav-link[aria-expanded=true] {
   background-color: #1f2433;
 }
-.side-menu .side-nav-link:hover i, .side-menu .side-nav-link:focus i, .side-menu .side-nav-link[aria-expanded=true] i {
+.side-menu .side-nav-link:focus i, .side-menu .side-nav-link[aria-expanded=true] i {
   color: #727cf5;
 }
-.side-menu .side-nav-link:hover span + span, .side-menu .side-nav-link:focus span + span, .side-menu .side-nav-link[aria-expanded=true] span + span {
+.side-menu .side-nav-link:focus span + span, .side-menu .side-nav-link[aria-expanded=true] span + span {
   transform: rotate(90deg);
 }
 .side-menu .side-nav-link i {

@@ -27,6 +27,23 @@
                             <span> Inicio </span>
                         </a>
                     </li>
+                    @if(auth()->user()->can(['read-users', 'create-users']))
+                    <li class="side-nav-item">
+                        <button class="btn side-nav-link" aria-expanded="false">
+                            <i class="fas fa-user"></i>
+                            <span> Usuarios </span>
+                            <span class="fas fa-chevron-right"></span>
+                        </button>
+                        <ul class="side-nav-second-level collapse" aria-expanded="false">
+                            <li>
+                                <a href="/user">Agregar</a>
+                            </li>
+                            <li>
+                                <a href="/users">Ver</a>
+                            </li>
+                        </ul>
+                    </li>
+                    @endif
                     <li class="side-nav-item">
                         <button class="btn side-nav-link" aria-expanded="false">
                             <i class="fas fa-user-md"></i>
@@ -65,8 +82,13 @@
                 <div class="card-body">
                     <nav aria-label="breadcrumb">
                         <ol class="breadcrumb mb-0 p-0">
-                            <li class="breadcrumb-item"><a href="#">Home</a></li>
-                            <li class="breadcrumb-item active"><a href="#">Library</a></li>
+                            <li class="breadcrumb-item @if(!isset($crumb1)){{ 'active' }}@endif"><a href="/">Inicio</a></li>
+                            @if(isset($crumb1))
+                            <li class="breadcrumb-item @if(!isset($crumb2)){{ 'active' }}@endif"><a href="{{ $crumb1['route'] }}">{{ $crumb1['name'] }}</a></li>
+                            @endif
+                            @if(isset($crumb2))
+                            <li class="breadcrumb-item active"><a href="{{ $crumb2['route'] }}">{{ $crumb2['name'] }}</a></li>
+                            @endif
                         </ol>
                     </nav>
                 </div>

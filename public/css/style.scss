@@ -23,6 +23,16 @@ body {
     background-color: #f2f3f8;
 }
 
+table {
+    tbody {
+        tr {
+            td {
+                vertical-align: middle!important;
+            }
+        }
+    }
+}
+
 // SIDE-MENU
 .side-menu {
     position: relative;
@@ -50,7 +60,7 @@ body {
         box-shadow: none;
         font-size: 16px;
 
-        &:hover, &:focus, &[aria-expanded=true] {
+        &:focus, &[aria-expanded=true] {
             background-color: $main-color-active;
 
             i {

@@ -13,13 +13,12 @@
 
 Auth::routes();
 
-//Route::group(['middleware' => ['can:create-users']], function () {
-    Route::get('register', [
-        'as' => 'register',
-        'uses' => 'Auth\RegisterController@showRegistrationForm'
-    ]);
-//});
-
+Route::get('register', function () {
+    return redirect('/user/create');
+});
+Route::post('register', function () {
+    abort(404);
+});
 
 //  Public web, but avoid access when logged.
 Route::group(['middleware' => '\App\Http\Middleware\Authenticate'], function () {
@@ -27,9 +26,15 @@ Route::group(['middleware' => '\App\Http\Middleware\Authenticate'], function () 
     Route::get('/', function () {
         return view('calendar.index');
     });
+    Route::get('/home', function () {
+        return redirect('/');
+    });
 
     Route::get('/doctor', function () {
         return view('doctors.create');
     });
+
+    //--- USERS SECTION ---
+    include('web/users.php');
 
 });
