@@ -13,12 +13,12 @@
 
 Auth::routes();
 
-Route::get('register', function () {
+/*Route::get('register', function () {
     return redirect('/user/create');
-});
-Route::post('register', function () {
+});*/
+/*Route::post('register', function () {
     abort(404);
-});
+});*/
 
 //  Public web, but avoid access when logged.
 Route::group(['middleware' => '\App\Http\Middleware\Authenticate'], function () {
@@ -36,5 +36,7 @@ Route::group(['middleware' => '\App\Http\Middleware\Authenticate'], function () 
 
     //--- USERS SECTION ---
     include('web/users.php');
+
+    Route::get('/logout', '\App\Http\Controllers\Auth\LoginController@logout');
 
 });
