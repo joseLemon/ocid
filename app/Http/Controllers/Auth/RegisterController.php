@@ -108,7 +108,7 @@ class RegisterController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function showRegistrationForm()
     {
         $roles = Role::all();
         $params = compact('roles');
