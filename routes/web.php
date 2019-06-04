@@ -21,7 +21,7 @@ Route::post('register', function () {
 });
 
 //  Public web, but avoid access when logged.
-Route::group(['middleware' => '\App\Http\Middleware\Authenticate'], function () {
+//Route::group(['middleware' => '\App\Http\Middleware\Authenticate'], function () {
 
     Route::get('/', function () {
         return view('calendar.index');
@@ -37,4 +37,4 @@ Route::group(['middleware' => '\App\Http\Middleware\Authenticate'], function () 
     //--- USERS SECTION ---
     include('web/users.php');
 
-});
+//});
