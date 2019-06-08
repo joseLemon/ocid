@@ -141,7 +141,7 @@
                 clear: 'fas fa-trash-alt',
             },
             //disabledTimeIntervals: [[moment({ h: 0 }), moment({ h: 8 })], [moment({ h: 14 }), moment({ h: 16 })], [moment({ h: 18 }), moment({ h: 24 })]],
-            enabledHours: [9, 10, 11, 12, 13, 14, 15, 16]
+            enabledHours: [9, 10, 11, 12, 13, 14, 15, 16],
         });
     })();
 </script>

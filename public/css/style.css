@@ -19,6 +19,14 @@ table tbody tr td {
   vertical-align: middle !important;
 }
 
+.fc-axis.fc-widget-header {
+  width: 46px !important;
+}
+
+.fc-title {
+  color: #fff;
+}
+
 .side-menu {
   position: relative;
   width: 250px;
