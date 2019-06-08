@@ -27,7 +27,7 @@ Route::group(['middleware' => ['can:update-users']], function () {
         'as' => 'user.edit',
         'uses' => 'UserController@edit'
     ]);
-    Route::post('/user/update', [
+    Route::post('/user/update/{id}', [
         'as' => 'user.update',
         'uses' => 'UserController@update'
     ]);

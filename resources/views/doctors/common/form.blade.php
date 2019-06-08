@@ -321,7 +321,7 @@
                 </div>
             </div>
 
-            <div class="col-12 mt-2">
+            <div class="mt-2">
                 <button class="btn btn-primary btn-block">Guardar</button>
             </div>
 

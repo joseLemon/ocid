@@ -18,7 +18,7 @@
 
 <div class="container-fluid">
     <div class="row">
-        <div class="side-menu float-left">
+        <div class="side-menu col-auto">
             <div class="fixed-top">
                 <ul>
                     <li class="side-nav-item">

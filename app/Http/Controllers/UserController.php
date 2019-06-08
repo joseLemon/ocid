@@ -31,7 +31,7 @@ class UserController extends Controller
             'name' => 'Crear',
             'route' => '/user',
         ];
-        $roles = Role::all();
+        $roles = Role::where("slug", "!=", "doctor")->get();
         $params = compact('crumb2', 'roles');
         return view('users.create', $params);
     }
@@ -48,6 +48,27 @@ class UserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['sometimes', 'required', 'string', 'min:8', 'confirmed'],
+            'role' => ['required', 'exists:roles,id'],
+        ], [], [
+            'name' => 'nombre',
+            'email' => 'correo electrónico',
+            'password' => 'contraseña',
+            'role' => 'tipo de usuario',
+        ]);
+    }
+
+    /**
+     * Get a validator for an incoming registration request.
+     *
+     * @param array $data
+     * @return \Illuminate\Contracts\Validation\Validator
+     */
+    protected function updateValidator(array $data, $id)
+    {
+        return Validator::make($data, [
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $id],
+            'password' => ['nullable', 'string', 'min:8', 'confirmed'],
             'role' => ['required', 'exists:roles,id'],
         ], [], [
             'name' => 'nombre',
@@ -86,7 +107,7 @@ class UserController extends Controller
             'name' => 'Editar',
             'route' => "/user/$id",
         ];
-        $roles = Role::all();
+        $roles = Role::where("slug", "!=", "doctor")->get();
         $user = User::find($id);
         $user->roles;
         $user->role = $user->roles[0]->id;
@@ -94,10 +115,83 @@ class UserController extends Controller
         return view('users.edit', $params);
     }
 
-    public function search()
+    public function update(Request $request, $id)
     {
-        $query = User::paginate(15);
+        $data = $request->all();
 
-        return $query;
+        $this->updateValidator($request->all(), $id)->validate();
+
+        DB::transaction(function () use ($data, $id) {
+            $user = User::find($id);
+            $user->name = $data['name'];
+            $user->email = $data['email'];
+            if ($data['password'])
+                $user->password = $data['password'];
+            $user->save();
+            $user->roles()->sync($data['role']);
+        });
+        return redirect('/users');
+    }
+
+    public function search(Request $request)
+    {
+        // Order-by data
+        $column = $request->order[0]['column'];
+        $dir = $request->order[0]['dir'];
+
+        // Skip-Take data
+        $current = $request->start;
+        $take = $request->length;
+        $skip = $take * $current;
+
+        // Searchbar string
+        $search = $request->search['value'];
+
+        switch ($column) {
+            case 0:
+                $column = 'users.id';
+                break;
+            case 1:
+                $column = 'users.name';
+                break;
+            case 2:
+                $column = 'roles.name';
+                break;
+            default:
+                $column = 'users.id';
+                break;
+        }
+
+        $query = User::select([
+            "users.id",
+            "users.name",
+            "roles.name AS role",
+        ])
+            ->join('users_roles', 'users_roles.user_id', '=', 'users.id')
+            ->join('roles', 'roles.id', '=', 'users_roles.role_id')
+            ->orderBy($column, $dir);
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where("users.name", "LIKE", "%$search%");
+            });
+        }
+
+        $total = $query->count();
+        $query = $query->skip($skip)->take($take);
+        $qCount = $query->count();
+        $result = $query->get();
+
+        foreach ($result as $i => $item)
+            $result[$i]->roles;
+
+        $params = [
+            'data' => $result,
+            'draw' => $request->draw,
+            'recordsFiltered' => $qCount,
+            'recordsTotal' => $total,
+        ];
+
+        return response()->json($params);
     }
 }

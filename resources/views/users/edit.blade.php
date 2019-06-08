@@ -5,7 +5,7 @@
     <div class="card">
 
         <div class="card-body">
-            <form method="POST" action="{{ route('user.update') }}">
+            <form method="POST" action="{{ route('user.update',[$user->id]) }}">
                 @csrf
                 @include('users.common.form')
             </form>

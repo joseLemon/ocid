@@ -16,13 +16,13 @@ class DatabaseSeeder extends Seeder
         // Admin Role
         $admin_role = new Role();
         $admin_role->slug = 'admin';
-        $admin_role->name = 'Administrator';
+        $admin_role->name = 'Administrador';
         $admin_role->save();
 
         // Assistant Role
         $assistant_role = new Role();
         $assistant_role->slug = 'assistant';
-        $assistant_role->name = 'Assistant';
+        $assistant_role->name = 'Asistente';
         $assistant_role->save();
 
         // Doctor Role
