@@ -34,10 +34,16 @@ Route::group(['middleware' => '\App\Http\Middleware\Authenticate'], function () 
         return view('doctors.create');
     });
 
+    Route::get('/test', function () {
+        dd(\App\Customer::get()->toArray());
+    });
+
     //--- USERS SECTION ---
     include('web/users.php');
     //--- SERVICES SECTION ---
     include('web/services.php');
+    //--- CUSTOMERS SECTION ---
+    include('web/customers.php');
 
     Route::get('/logout', '\App\Http\Controllers\Auth\LoginController@logout');
 
