@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Service;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -23,6 +24,8 @@ class HomeController extends Controller
      */
     public function index()
     {
-        return view('home');
+        $services = Service::all()->pluck('name', 'id');
+        $params = compact('services');
+        return view('calendar.index', $params);
     }
 }

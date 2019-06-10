@@ -8,15 +8,13 @@
             <table class="table table-hover w-100" id="users-table">
                 <colgroup>
                     <col style="width: 10%">
-                    <col style="width: 40%">
-                    <col style="width: 40%">
+                    <col style="width: 80%">
                     <col style="width: 10%">
                 </colgroup>
                 <thead>
                 <tr>
                     <th>Id</th>
                     <th>Nombre</th>
-                    <th>Tipo de usuario</th>
                     <th></th>
                 </tr>
                 </thead>
@@ -38,7 +36,7 @@
                             <i class="fas fa-bars"></i>
                         </a>
                         <div class="dropdown-menu" aria-labelledby="dropdownMenu${id}">
-                            <a class="dropdown-item" href="/user/${id}"><i class="fas fa-edit"></i> Edit</a>
+                            <a class="dropdown-item" href="/service/${id}"><i class="fas fa-edit"></i> Edit</a>
                             <button class="dropdown-item btn btn-link" type="button" onclick="deleteHandler(${id})"><i class="fas fa-trash"></i> Delete</button>
                         </div>
                     </div>`;
@@ -54,7 +52,7 @@
                 //searchDelay: 600,
                 ajax: {
                     length: 1,
-                    url: "/users/search",
+                    url: "/services/search",
                     type: "GET",
                     beforeSend: () => {
                         if (table && table.hasOwnProperty('settings')) {
@@ -68,7 +66,6 @@
                             columns.push({
                                 id: json.data[i].id,
                                 name: json.data[i].name,
-                                role: json.data[i].role,
                                 options: renderMenu(json.data[i].id),
                             });
                         }
@@ -79,7 +76,6 @@
                 columns: [
                     {data: 'id'},
                     {data: 'name'},
-                    {data: 'role'},
                     {
                         data: 'options',
                         orderable: false,

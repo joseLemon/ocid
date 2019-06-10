@@ -41,6 +41,15 @@ table {
     color: #fff;
 }
 
+.select-2-g-append + span {
+    position: relative;
+    -webkit-box-flex: 1;
+    -ms-flex: 1 1 auto;
+    flex: 1 1 auto;
+    width: 1%!important;
+    margin-bottom: 0;
+}
+
 // SIDE-MENU
 .side-menu {
     position: relative;

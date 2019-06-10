@@ -4,9 +4,9 @@
 @section('content')
     <div class="card">
         <div class="card-body">
-            <form method="POST" action="{{ route('user.update',[$user->id]) }}">
+            <form method="POST" action="{{ route('service.store') }}">
                 @csrf
-                @include('users.common.form')
+                @include('services.common.form')
             </form>
         </div>
     </div>

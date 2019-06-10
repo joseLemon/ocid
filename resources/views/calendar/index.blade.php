@@ -9,7 +9,7 @@
             <button data-toggle="modal" data-target="#event-modal" class="btn btn-primary">Agregar evento</button>
             <div id="calendar"></div>
 
-            <div class="modal fade" tabindex="-1" role="dialog" id="event-modal">
+            <div class="modal fade" role="dialog" id="event-modal">
                 <div class="modal-dialog modal-lg" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
@@ -26,18 +26,23 @@
                             <div class="form-group">
                                 <label for="service">Servicio</label>
                                 <div class="input-group">
-                                    <select class="form-control" id="service"></select>
+                                    <select class="form-control select-2-g-append" id="service">
+                                        <option value="" selected disabled></option>
+                                        @foreach($services as $id => $service)
+                                            <option value="{{ $id }}">{{ $service }}</option>
+                                        @endforeach
+                                    </select>
                                     <div class="input-group-append">
-                                        <button class="btn btn-success" type="button">+</button>
+                                        <button class="btn btn-success" type="button" id="addService">+</button>
                                     </div>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label for="customer">Cliente</label>
                                 <div class="input-group">
-                                    <select class="form-control" id="customer"></select>
+                                    <select class="form-control select-2-g-append" id="customer"></select>
                                     <div class="input-group-append">
-                                        <button class="btn btn-success" type="button">+</button>
+                                        <button class="btn btn-success" type="button" id="addCustomer">+</button>
                                     </div>
                                 </div>
                             </div>
@@ -111,23 +116,26 @@
             });
 
             $('#addEvent').click(function () {
-                let date = $('#date'),
-                    start = $('#start_date'),
-                    end = $('#end_date');
+                let date = $('#date').val(),
+                    start = $('#start_date').val(),
+                    end = $('#end_date').val();
+
                 calendar.addEvent({
                     title: 'dynamic event',
-                    start: moment(`${date.val()} ${start.val()}`).format('Y-MM-DD HH:mm:ss'),
-                    end: moment(`${date.val()} ${end.val()}`).format('Y-MM-DD HH:mm:ss'),
+                    start: moment(`${date} ${start}`).format('Y-MM-DD HH:mm:ss'),
+                    end: moment(`${date} ${end}`).format('Y-MM-DD HH:mm:ss'),
                     resourceId: 'a',
                 });
             });
 
             $('#date').datetimepicker({
-                format: 'L',
+                format: 'DD/MM/YYYY',
+                defaultDate: false,
+                locale: 'es',
             });
 
             $('#start_date, #end_date').datetimepicker({
-                format: 'LT',
+                format: 'hh:mm a',
                 showClear: true,
                 stepping: 10,
                 defaultDate: moment(8, "HH"),
@@ -136,6 +144,77 @@
                     clear: 'fas fa-trash-alt',
                 },
             });
+
+            $('#service').select2();
+            $('#doctor').select2();
+            $('#customer').select2();
+
+            @if(auth()->user()->can('create-services'))
+            $('#addService').click(function () {
+                $.confirm({
+                    title: 'Servicio',
+                    content: '' +
+                        '<form id="serviceForm">' +
+                        '<div class="form-group">' +
+                        '<input type="text" placeholder="Servicio" class="form-control" id="service_name" required/>' +
+                        '</div>' +
+                        '</form>',
+                    buttons: {
+                        formSubmit: {
+                            text: 'Guardar',
+                            btnClass: 'btn-blue',
+                            action: function () {
+                                let name = this.$content.find('#service_name').val();
+                                if (!name) {
+                                    $.alert('Agrega un nombre de servicio para continuar');
+                                    return false;
+                                }
+                                $.ajax({
+                                    type: 'POST',
+                                    url: '/service',
+                                    data: {
+                                        name: $('#service_name').val(),
+                                    },
+                                    success: (res) => {
+                                        if (res.success) {
+                                            $('#service').append(`<option value="${res.service.id}">${res.service.name}</option>`).trigger('change');
+                                        } else
+                                            $.alert({
+                                                title: 'Error',
+                                                type: 'red',
+                                                content: 'Ocurrió un error procesando la solicitud',
+                                            });
+                                    },
+                                    error: () => {
+                                        $.alert({
+                                            title: 'Error',
+                                            type: 'red',
+                                            content: 'Ocurrió un error procesando la solicitud',
+                                        });
+                                    }
+                                });
+                            }
+                        },
+                        cancel: {
+                            text: 'Cancelar',
+                            action: function () {
+                                //close
+                            }
+                        },
+                    },
+                    onContentReady: function () {
+                        // bind to events
+                        let jc = this;
+                        this.$content.find('form').on('submit', function (e) {
+                            // if the user submits the form by pressing enter in the field.
+                            e.preventDefault();
+                            jc.$$formSubmit.trigger('click'); // reference the button and click it
+                        });
+                    },
+                    columnClass: 'col-md-6 col-md-offset-3'
+                });
+            });
+            @endif
         })();
     </script>
 @stop
