@@ -147,7 +147,38 @@
 
             $('#service').select2();
             $('#doctor').select2();
-            $('#customer').select2();
+
+            $('#customer').select2({
+                language: 'es',
+                allowClear: true,
+                placeholder: 'Nombre del cliente',
+                ajax: {
+                    url: '/customers/search',
+                    method: 'GET',
+                    dataType: 'json',
+                    delay: 250,
+                    data: function (params) {
+                        return {
+                            string: params.term.trim() || "", // search term
+                            page: params.page || 1,
+                        };
+                    },
+                    processResults: function (items, params) {
+                        return {
+                            results: items.data,
+                            pagination: {
+                                more: (items.current_page * items.per_page) < items.total
+                            }
+                        };
+                    },
+                    cache: true
+                },
+                minimumInputLength: 1
+            }).on("select2:select", function (e) {
+                //o.select(e.params.data);
+            }).on("select2:unselect", function () {
+                //o.unselect();
+            });
 
             @if(auth()->user()->can('create-services'))
             $('#addService').click(function () {
@@ -179,6 +210,72 @@
                                         if (res.success) {
                                             $('#service').append(`<option value="${res.service.id}">${res.service.name}</option>`).trigger('change');
                                         } else
+                                            $.alert({
+                                                title: 'Error',
+                                                type: 'red',
+                                                content: 'Ocurrió un error procesando la solicitud',
+                                            });
+                                    },
+                                    error: () => {
+                                        $.alert({
+                                            title: 'Error',
+                                            type: 'red',
+                                            content: 'Ocurrió un error procesando la solicitud',
+                                        });
+                                    }
+                                });
+                            }
+                        },
+                        cancel: {
+                            text: 'Cancelar',
+                            action: function () {
+                                //close
+                            }
+                        },
+                    },
+                    onContentReady: function () {
+                        // bind to events
+                        let jc = this;
+                        this.$content.find('form').on('submit', function (e) {
+                            // if the user submits the form by pressing enter in the field.
+                            e.preventDefault();
+                            jc.$$formSubmit.trigger('click'); // reference the button and click it
+                        });
+                    },
+                    columnClass: 'col-md-6 col-md-offset-3'
+                });
+            });
+            @endif
+            @if(auth()->user()->can('create-customers'))
+            $('#addCustomer').click(function () {
+                $.confirm({
+                    title: 'Cliente',
+                    content: '' +
+                        '<form id="customerForm">' +
+                        '<div class="form-group">' +
+                        '<input type="text" placeholder="Nombre" class="form-control mb-2" id="customer_name" required/>' +
+                        '<input type="text" placeholder="Apellido" class="form-control mb-2" id="customer_last_name" required/>' +
+                        '</div>' +
+                        '</form>',
+                    buttons: {
+                        formSubmit: {
+                            text: 'Guardar',
+                            btnClass: 'btn-blue',
+                            action: function () {
+                                let name = this.$content.find('#customer_name').val();
+                                if (!name) {
+                                    $.alert('Agrega un nombre de cliente para continuar');
+                                    return false;
+                                }
+                                $.ajax({
+                                    type: 'POST',
+                                    url: '/customer',
+                                    data: {
+                                        first_name: $('#customer_name').val(),
+                                        last_name: $('#customer_last_name').val(),
+                                    },
+                                    success: (res) => {
+                                        if (!res.success)
                                             $.alert({
                                                 title: 'Error',
                                                 type: 'red',

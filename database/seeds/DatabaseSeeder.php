@@ -2,7 +2,9 @@
 
 use App\Permission;
 use App\Role;
+use App\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -34,89 +36,118 @@ class DatabaseSeeder extends Seeder
         // Users permissions
         $permission = new Permission();
         $permission->slug = 'create-users';
-        $permission->name = 'Create Users';
+        $permission->name = 'Crear usuarios';
         $permission->save();
         $permission->roles()->attach($admin_role->id);
         $permission = new Permission();
         $permission->slug = 'update-users';
-        $permission->name = 'Edit Users';
+        $permission->name = 'Editarar usuarios';
         $permission->save();
         $permission->roles()->attach($admin_role->id);
         $permission = new Permission();
         $permission->slug = 'read-users';
-        $permission->name = 'Read Users';
+        $permission->name = 'Ver usuarios';
         $permission->save();
         $permission->roles()->attach($admin_role->id);
         $permission = new Permission();
         $permission->slug = 'delete-users';
-        $permission->name = 'Delete Users';
+        $permission->name = 'Borrar usuarios';
         $permission->save();
         $permission->roles()->attach($admin_role->id);
 
         // Customers permissions
         $permission = new Permission();
         $permission->slug = 'create-customers';
-        $permission->name = 'Create Customers';
+        $permission->name = 'Crear clientes';
         $permission->save();
         $permission->roles()->attach([$admin_role->id, $assistant_role->id]);
         $permission = new Permission();
         $permission->slug = 'update-customers';
-        $permission->name = 'Edit Customers';
+        $permission->name = 'Editar clientes';
         $permission->save();
         $permission->roles()->attach([$admin_role->id, $assistant_role->id]);
         $permission = new Permission();
         $permission->slug = 'read-customers';
-        $permission->name = 'Read Customers';
+        $permission->name = 'Ver clientes';
         $permission->save();
         $permission->roles()->attach([$admin_role->id, $assistant_role->id]);
         $permission = new Permission();
         $permission->slug = 'delete-customers';
-        $permission->name = 'Delete Customers';
+        $permission->name = 'Borrar clientes';
         $permission->save();
         $permission->roles()->attach([$admin_role->id, $assistant_role->id]);
 
         // Services permissions
         $permission = new Permission();
         $permission->slug = 'create-services';
-        $permission->name = 'Create Services';
+        $permission->name = 'Crear servicios';
         $permission->save();
         $permission->roles()->attach([$admin_role->id, $assistant_role->id]);
         $permission = new Permission();
         $permission->slug = 'update-services';
-        $permission->name = 'Edit Services';
+        $permission->name = 'Editar servicios';
         $permission->save();
         $permission->roles()->attach([$admin_role->id, $assistant_role->id]);
         $permission = new Permission();
         $permission->slug = 'read-services';
-        $permission->name = 'Read Services';
+        $permission->name = 'Ver servicios';
         $permission->save();
         $permission->roles()->attach([$admin_role->id, $assistant_role->id]);
         $permission = new Permission();
         $permission->slug = 'delete-services';
-        $permission->name = 'Delete Services';
+        $permission->name = 'Borrar servicios';
         $permission->save();
         $permission->roles()->attach([$admin_role->id, $assistant_role->id]);
 
         // Appointments permissions
         $permission = new Permission();
         $permission->slug = 'create-appointments';
-        $permission->name = 'Create Appointments';
+        $permission->name = 'Crear citas';
         $permission->save();
         $permission->roles()->attach([$admin_role->id, $assistant_role->id]);
         $permission = new Permission();
         $permission->slug = 'update-appointments';
-        $permission->name = 'Edit Appointments';
+        $permission->name = 'Editar citas';
         $permission->save();
         $permission->roles()->attach([$admin_role->id, $assistant_role->id]);
         $permission = new Permission();
         $permission->slug = 'read-appointments';
-        $permission->name = 'Read Appointments';
+        $permission->name = 'Ver citas';
         $permission->save();
         $permission->roles()->attach([$admin_role->id, $assistant_role->id, $doctor_role->id]);
         $permission = new Permission();
         $permission->slug = 'delete-appointments';
-        $permission->name = 'Delete Appointments';
+        $permission->name = 'Borrar citas';
         $permission->save();
         $permission->roles()->attach([$admin_role->id, $assistant_role->id]);
+
+        // Branch permissions
+        $permission = new Permission();
+        $permission->slug = 'create-branches';
+        $permission->name = 'Crear sucursales';
+        $permission->save();
+        $permission->roles()->attach([$admin_role->id]);
+        $permission = new Permission();
+        $permission->slug = 'update-branches';
+        $permission->name = 'Editar sucursales';
+        $permission->save();
+        $permission->roles()->attach([$admin_role->id]);
+        $permission = new Permission();
+        $permission->slug = 'read-branches';
+        $permission->name = 'Ver sucursales';
+        $permission->save();
+        $permission->roles()->attach([$admin_role->id]);
+        $permission = new Permission();
+        $permission->slug = 'delete-branches';
+        $permission->name = 'Borrar sucursales';
+        $permission->save();
+        $permission->roles()->attach([$admin_role->id]);
+
+        $user = new User();
+        $user->name = 'Developer';
+        $user->email = 'developer@mixen.mx';
+        $user->password = Hash::make('dEve.9407');
+        $user->save();
+        $user->roles()->attach(1);
     }
 }
