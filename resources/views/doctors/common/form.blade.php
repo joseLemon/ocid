@@ -13,7 +13,7 @@
             </li>
         </ul>
 
-        <form action="">
+        <form  method="POST" action="">
             <div class="tab-content">
                 <div class="tab-pane fade show active" id="form" role="tabpanel" aria-labelledby="home-tab">
                     <div class="row mt-3">
