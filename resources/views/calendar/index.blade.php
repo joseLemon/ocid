@@ -153,7 +153,7 @@
                 allowClear: true,
                 placeholder: 'Nombre del cliente',
                 ajax: {
-                    url: '/customers/search',
+                    url: '/customers/searchSelect',
                     method: 'GET',
                     dataType: 'json',
                     delay: 250,

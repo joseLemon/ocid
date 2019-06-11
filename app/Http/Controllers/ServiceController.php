@@ -102,8 +102,8 @@ class ServiceController extends Controller
         $dir = $request->order[0]['dir'];
 
         // Skip-Take data
-        $current = $request->start;
         $take = $request->length;
+        $current = $request->start / $take;
         $skip = $take * $current;
 
         // Searchbar string
@@ -144,7 +144,7 @@ class ServiceController extends Controller
         $params = [
             'data' => $result,
             'draw' => $request->draw,
-            'recordsFiltered' => $qCount,
+            'recordsFiltered' => $total,
             'recordsTotal' => $total,
         ];
 

@@ -7,8 +7,8 @@ use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
@@ -140,8 +140,8 @@ class UserController extends Controller
         $dir = $request->order[0]['dir'];
 
         // Skip-Take data
-        $current = $request->start;
         $take = $request->length;
+        $current = $request->start / $take;
         $skip = $take * $current;
 
         // Searchbar string
@@ -179,7 +179,6 @@ class UserController extends Controller
 
         $total = $query->count();
         $query = $query->skip($skip)->take($take);
-        $qCount = $query->count();
         $result = $query->get();
 
         foreach ($result as $i => $item)
@@ -188,7 +187,7 @@ class UserController extends Controller
         $params = [
             'data' => $result,
             'draw' => $request->draw,
-            'recordsFiltered' => $qCount,
+            'recordsFiltered' => $total,
             'recordsTotal' => $total,
         ];
 

@@ -5,10 +5,45 @@ namespace App\Http\Controllers;
 use App\Customer;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Validator;
 
 class CustomerController extends Controller
 {
+    public function __construct()
+    {
+        View::share("crumb1", [
+            'name' => 'Clientes',
+            'route' => '/customers',
+        ]);
+    }
+
+    public function index()
+    {
+        return view('customers.index');
+    }
+
+    public function create()
+    {
+        $crumb2 = [
+            'name' => 'Crear',
+            'route' => '/customer',
+        ];
+        $params = compact('crumb2');
+        return view('customers.create', $params);
+    }
+
+    public function edit($id)
+    {
+        $crumb2 = [
+            'name' => 'Editar',
+            'route' => "/customer/$id",
+        ];
+        $customer = Customer::find($id);
+        $params = compact('crumb2', 'customer');
+        return view('customers.edit', $params);
+    }
+
     protected function validator(array $data)
     {
         return Validator::make($data, [
@@ -48,6 +83,63 @@ class CustomerController extends Controller
     }
 
     public function search(Request $request)
+    {
+        // Order-by data
+        $column = $request->order[0]['column'];
+        $dir = $request->order[0]['dir'];
+
+        // Skip-Take data
+        $take = $request->length;
+        $current = $request->start / $take;
+        $skip = $take * $current;
+
+        // Searchbar string
+        $search = $request->search['value'];
+
+        switch ($column) {
+            case 0:
+                $column = 'id';
+                break;
+            case 1:
+                $column = 'full_name';
+                break;
+            default:
+                $column = 'id';
+                break;
+        }
+
+        $query = Customer::select([
+            'id',
+            'full_name',
+        ])
+            ->orderBy($column, $dir);
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('full_name', 'LIKE', "%$search%")
+                    ->orWhere('first_name', 'LIKE', "%$search%")
+                    ->orWhere('last_name', 'LIKE', "%$search%");
+            });
+        }
+
+        $total = $query->count();
+        $query = $query->skip($skip)->take($take);
+        $result = $query->get();
+
+        foreach ($result as $i => $item)
+            $result[$i]->roles;
+
+        $params = [
+            'data' => $result,
+            'draw' => $request->draw,
+            'recordsFiltered' => $total,
+            'recordsTotal' => $total,
+        ];
+
+        return response()->json($params);
+    }
+
+    public function searchSelect(Request $request)
     {
         $string = $request->string;
         $result = Customer::select([

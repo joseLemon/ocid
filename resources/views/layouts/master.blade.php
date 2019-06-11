@@ -72,6 +72,27 @@
                             </li>
                         </ul>
                     </li>
+                    @if(auth()->user()->can(['read-customers', 'create-customers']))
+                        <li class="side-nav-item">
+                            <button class="btn side-nav-link" aria-expanded="false">
+                                <i class="fas fa-user-friends"></i>
+                                <span> Clientes </span>
+                                <span class="fas fa-chevron-right"></span>
+                            </button>
+                            <ul class="side-nav-second-level collapse" aria-expanded="false">
+                                @if(auth()->user()->can('create-customers'))
+                                    <li>
+                                        <a href="/customer">Agregar</a>
+                                    </li>
+                                @endif
+                                @if(auth()->user()->can('read-customers'))
+                                    <li>
+                                        <a href="/customers">Ver</a>
+                                    </li>
+                                @endif
+                            </ul>
+                        </li>
+                    @endif
                     @if(auth()->user()->can(['read-services', 'create-services']))
                         <li class="side-nav-item">
                             <button class="btn side-nav-link" aria-expanded="false">
