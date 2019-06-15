@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Branch;
 use App\Role;
 use App\User;
 use Illuminate\Http\Request;
@@ -31,8 +32,9 @@ class DoctorController extends Controller
             'name' => 'Crear',
             'route' => '/doctor',
         ];
-        $params = compact('crumb2', 'roles');
-        return view('doctor.create', $params);
+        $branches = Branch::all();
+        $params = compact('crumb2', 'branches');
+        return view('doctors.create', $params);
     }
 
     /**
@@ -47,10 +49,12 @@ class DoctorController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['sometimes', 'required', 'string', 'min:8', 'confirmed'],
+            'branch' => ['required', 'exists:branches,id'],
         ], [], [
             'name' => 'nombre',
             'email' => 'correo electrónico',
             'password' => 'contraseña',
+            'branch' => 'sucursal',
         ]);
     }
 
@@ -66,6 +70,7 @@ class DoctorController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $id],
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
+            'branch' => ['required', 'exists:branches,id'],
         ], [], [
             'name' => 'nombre',
             'email' => 'correo electrónico',
@@ -93,7 +98,7 @@ class DoctorController extends Controller
             ]);
             $user->roles()->attach(3);
         });
-        return redirect('/doctor');
+        return redirect('/doctors');
     }
 
     public function edit($id)
@@ -102,12 +107,10 @@ class DoctorController extends Controller
             'name' => 'Editar',
             'route' => "/doctor/$id",
         ];
-        $roles = Role::where("slug", "==", "doctor")->get();
+        $branches = Branch::all();
         $user = User::find($id);
-        $user->roles;
-        $user->role = $user->roles[0]->id;
-        $params = compact('crumb2', 'roles', 'user');
-        return view('doctor.edit', $params);
+        $params = compact('crumb2',  'branches', 'user');
+        return view('doctors.edit', $params);
     }
 
     public function update(Request $request, $id)
@@ -125,6 +128,6 @@ class DoctorController extends Controller
             $user->save();
             $user->roles()->sync(3);
         });
-        return redirect('/doctor');
+        return redirect('/doctors');
     }
 }

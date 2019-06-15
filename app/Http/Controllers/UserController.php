@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Branch;
 use App\Role;
 use App\User;
 use Illuminate\Http\Request;
@@ -32,7 +33,8 @@ class UserController extends Controller
             'route' => '/user',
         ];
         $roles = Role::where("slug", "!=", "doctor")->get();
-        $params = compact('crumb2', 'roles');
+        $branches = Branch::all();
+        $params = compact('crumb2', 'roles', 'branches');
         return view('users.create', $params);
     }
 
@@ -108,10 +110,13 @@ class UserController extends Controller
             'route' => "/user/$id",
         ];
         $roles = Role::where("slug", "!=", "doctor")->get();
+        $branches = Branch::all();
         $user = User::find($id);
         $user->roles;
-        $user->role = $user->roles[0]->id;
-        $params = compact('crumb2', 'roles', 'user');
+        $user->branches;
+        $user->role = $user->roles[0]->id ?? null;
+        $user->branch = $user->branches[0]->id ?? null;
+        $params = compact('crumb2', 'roles', 'branches', 'user');
         return view('users.edit', $params);
     }
 
@@ -129,6 +134,7 @@ class UserController extends Controller
                 $user->password = $data['password'];
             $user->save();
             $user->roles()->sync($data['role']);
+            $user->branches()->sync($data['branch']);
         });
         return redirect('/users');
     }

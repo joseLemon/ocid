@@ -7,6 +7,9 @@
     @include('doctors.common.form')
 @stop
 @section('scripts')
+    @if(auth()->user()->can('create-branches'))
+        <script src="{{ asset('js/modules/branches/addBranchModal.js') }}"></script>
+    @endif
     @include('layouts.fullcalendar.footer')
     <script src="{{ asset('js/bootstrap-clockpicker.min.js') }}"></script>
     <script src="{{ asset('js/modules/doctors/functionality.js?1.0.0') }}"></script>

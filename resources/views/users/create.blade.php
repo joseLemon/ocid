@@ -12,4 +12,7 @@
     </div>
 @endsection
 @section('scripts')
+    @if(auth()->user()->can('create-branches'))
+        <script src="{{ asset('js/modules/branches/addBranchModal.js') }}"></script>
+    @endif
 @endsection

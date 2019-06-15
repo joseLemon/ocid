@@ -40,6 +40,30 @@
         @enderror
     </div>
 
+    <div class="form-group col-lg-6 col-md-6">
+        <label for="branch" class="col-form-label text-md-right">{{ __('Sucursal') }}</label>
+
+        <div class="input-group">
+            <select name="branch" id="branch" class="form-control @error('branch') is-invalid @enderror" name="branch" autocomplete="branch">
+                <option value="" selected></option>
+                @foreach($branches as $branch)
+                    <option value="{{ $branch->id }}" @isset($user->branch) @if($user->branch == $branch->id){{ 'selected' }}@endif @endisset>{{ $branch->name }}</option>
+                @endforeach
+            </select>
+            @if(auth()->user()->can('create-branches'))
+                <div class="input-group-append">
+                    <button class="btn btn-success" type="button" id="addBranch">+</button>
+                </div>
+            @endif
+        </div>
+
+        @error('branch')
+        <span class="invalid-feedback" role="alert">
+            <strong>{{ $message }}</strong>
+        </span>
+        @enderror
+    </div>
+
     <div class="w-100"></div>
 
     <div class="form-group col-lg-6 col-md-6">

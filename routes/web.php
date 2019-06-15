@@ -26,12 +26,9 @@ Route::group(['middleware' => '\App\Http\Middleware\Authenticate'], function () 
         'as' => 'user.edit',
         'uses' => 'HomeController@index'
     ]);
+
     Route::get('/home', function () {
         return redirect('/');
-    });
-
-    Route::get('/doctor', function () {
-        return view('doctors.create');
     });
 
     Route::get('/test', function () {
@@ -44,6 +41,10 @@ Route::group(['middleware' => '\App\Http\Middleware\Authenticate'], function () 
     include('web/services.php');
     //--- CUSTOMERS SECTION ---
     include('web/customers.php');
+    //--- BRANCHES SECTION ---
+    include('web/branches.php');
+    //--- DOCTORS SECTION ---
+    include('web/doctors.php');
 
     Route::get('/logout', '\App\Http\Controllers\Auth\LoginController@logout');
 

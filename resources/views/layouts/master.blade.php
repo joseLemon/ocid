@@ -72,6 +72,27 @@
                             </li>
                         </ul>
                     </li>
+                    @if(auth()->user()->can(['read-branches', 'create-branches']))
+                        <li class="side-nav-item">
+                            <button class="btn side-nav-link" aria-expanded="false">
+                                <i class="fas fa-store-alt"></i>
+                                <span> Sucursales </span>
+                                <span class="fas fa-chevron-right"></span>
+                            </button>
+                            <ul class="side-nav-second-level collapse" aria-expanded="false">
+                                @if(auth()->user()->can('create-branches'))
+                                    <li>
+                                        <a href="/branch">Agregar</a>
+                                    </li>
+                                @endif
+                                @if(auth()->user()->can('read-branches'))
+                                    <li>
+                                        <a href="/branches">Ver</a>
+                                    </li>
+                                @endif
+                            </ul>
+                        </li>
+                    @endif
                     @if(auth()->user()->can(['read-customers', 'create-customers']))
                         <li class="side-nav-item">
                             <button class="btn side-nav-link" aria-expanded="false">

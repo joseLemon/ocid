@@ -36,13 +36,13 @@
                             <i class="fas fa-bars"></i>
                         </a>
                         <div class="dropdown-menu" aria-labelledby="dropdownMenu${id}">
-                            <a class="dropdown-item" href="/service/${id}"><i class="fas fa-edit"></i> Edit</a>
+                            <a class="dropdown-item" href="/branch/${id}"><i class="fas fa-edit"></i> Edit</a>
                             <button class="dropdown-item btn btn-link" type="button" onclick="deleteHandler(${id})"><i class="fas fa-trash"></i> Delete</button>
                         </div>
                     </div>`;
                     return menu;
                 };
-            dataTables.services = table = $("#data-table").DataTable({
+            dataTables.branches = table = $("#data-table").DataTable({
                 keys: !0,
                 language: dataTables.lang,
                 responsive: true,
@@ -52,7 +52,7 @@
                 //searchDelay: 600,
                 ajax: {
                     length: 1,
-                    url: "/services/search",
+                    url: "/branches/search",
                     type: "GET",
                     beforeSend: () => {
                         if (table && table.hasOwnProperty('settings')) {

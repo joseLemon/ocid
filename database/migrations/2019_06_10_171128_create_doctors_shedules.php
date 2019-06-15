@@ -15,7 +15,7 @@ class CreateDoctorsShedules extends Migration
      */
     public function up()
     {
-        Schema::create('doctors_shedules', function (Blueprint $table) {
+        Schema::create('doctors_schedules', function (Blueprint $table) {
             $table->bigInteger('user_id')->unsigned();
             $table->tinyInteger('day');
             $table->time('start_time');
@@ -30,6 +30,6 @@ class CreateDoctorsShedules extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('doctors_shedules');
+        Schema::dropIfExists('doctors_schedules');
     }
 }

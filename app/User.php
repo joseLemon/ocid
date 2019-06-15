@@ -38,4 +38,9 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function branches()
+    {
+        return $this->belongsToMany(Branch::class, 'branches_users');
+    }
 }

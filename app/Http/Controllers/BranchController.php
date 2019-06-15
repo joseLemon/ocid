@@ -2,35 +2,35 @@
 
 namespace App\Http\Controllers;
 
-use App\Service;
+use App\Branch;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\View;
 
-class ServiceController extends Controller
+class BranchController extends Controller
 {
     public function __construct()
     {
         View::share("crumb1", [
-            'name' => 'Servicios',
-            'route' => '/services',
+            'name' => 'Sucursales',
+            'route' => '/branches',
         ]);
     }
 
     public function index()
     {
-        return view('services.index');
+        return view('branches.index');
     }
 
     public function create()
     {
         $crumb2 = [
             'name' => 'Crear',
-            'route' => '/service',
+            'route' => '/branch',
         ];
         $params = compact('crumb2');
-        return view('services.create', $params);
+        return view('branches.create', $params);
     }
 
     public function store(Request $request)
@@ -39,27 +39,27 @@ class ServiceController extends Controller
 
         $this->validator($request->all())->validate();
 
-        DB::transaction(function () use ($data, &$service) {
-            $service = Service::create([
+        DB::transaction(function () use ($data, &$branch) {
+            $branch = Branch::create([
                 'name' => $data['name'],
             ]);
         });
 
         if ($request->ajax())
-            return response()->json(['success' => true, 'service' => $service]);
+            return response()->json(['success' => true, 'branch' => $branch]);
         else
-            return redirect('/services');
+            return redirect('/branches');
     }
 
     public function edit($id)
     {
         $crumb2 = [
             'name' => 'Editar',
-            'route' => "/service/$id",
+            'route' => "/branch/$id",
         ];
-        $service = Service::find($id);
-        $params = compact('crumb2', 'service');
-        return view('services.edit', $params);
+        $branch = Branch::find($id);
+        $params = compact('crumb2', 'branch');
+        return view('branches.edit', $params);
     }
 
     public function update(Request $request, $id)
@@ -68,16 +68,17 @@ class ServiceController extends Controller
 
         $this->validator($request->all())->validate();
 
-        DB::transaction(function () use ($data, $id, &$service) {
-            $service = Service::find($id);
-            $service->name = $data['name'];
-            $service->save();
+        DB::transaction(function () use ($data, $id, &$branch) {
+            $branch = Branch::find($id);
+            $branch->name = $data['name'];
+            $branch->save();
         });
 
+
         if ($request->ajax())
-            return response()->json(['success' => true, 'service' => $service]);
+            return response()->json(['success' => true, 'branch' => $branch]);
         else
-            return redirect('/services');
+            return redirect('/branches');
     }
 
     /**
@@ -91,7 +92,7 @@ class ServiceController extends Controller
         return Validator::make($data, [
             'name' => ['required', 'string', 'max:255'],
         ], [], [
-            'name' => 'servicio',
+            'name' => 'sucursal',
         ]);
     }
 
@@ -111,25 +112,25 @@ class ServiceController extends Controller
 
         switch ($column) {
             case 0:
-                $column = 'services.id';
+                $column = 'branches.id';
                 break;
             case 1:
-                $column = 'services.name';
+                $column = 'branches.name';
                 break;
             default:
-                $column = 'services.id';
+                $column = 'branches.id';
                 break;
         }
 
-        $query = Service::select([
-            'services.id',
-            'services.name',
+        $query = Branch::select([
+            'branches.id',
+            'branches.name',
         ])
             ->orderBy($column, $dir);
 
         if ($search) {
             $query->where(function ($q) use ($search) {
-                $q->where("services.name", "LIKE", "%$search%");
+                $q->where("branches.name", "LIKE", "%$search%");
             });
         }
 
@@ -149,4 +150,5 @@ class ServiceController extends Controller
 
         return response()->json($params);
     }
+
 }
