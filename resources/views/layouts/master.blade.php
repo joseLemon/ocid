@@ -60,7 +60,7 @@
                     <li class="side-nav-item">
                         <button class="btn side-nav-link" aria-expanded="false">
                             <i class="fas fa-user-md"></i>
-                            <span> Medicos </span>
+                            <span> Médicos </span>
                             <span class="fas fa-chevron-right"></span>
                         </button>
                         <ul class="side-nav-second-level collapse" aria-expanded="false">

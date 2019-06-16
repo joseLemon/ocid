@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Branch;
 use App\Service;
 use Illuminate\Http\Request;
 
@@ -25,7 +26,8 @@ class HomeController extends Controller
     public function index()
     {
         $services = Service::all()->pluck('name', 'id');
-        $params = compact('services');
+        $branches = Branch::all()->pluck('name', 'id');
+        $params = compact('services', 'branches');
         return view('calendar.index', $params);
     }
 }

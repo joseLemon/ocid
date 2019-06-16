@@ -6,7 +6,32 @@
 @section('content')
     <div class="card">
         <div class="card-body">
-            <button data-toggle="modal" data-target="#event-modal" class="btn btn-primary">Agregar evento</button>
+            <div class="row">
+                <div class="col">
+                    <button data-toggle="modal" data-target="#event-modal" class="btn btn-primary mt-3">Agregar evento</button>
+                </div>
+                @if(auth()->user()->hasRole('admin'))
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="branch_f">Sucursales</label>
+                            <select name="branch_f" id="branch_f" class="form-control">
+                                <option></option>
+                                @foreach($branches as $id => $branch)
+                                    <option value="{{ $id }}">{{ $branch }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                @endif
+                <div class="col">
+                    <div class="form-group">
+                        <label for="doctor_f">Médicos</label>
+                        <select name="doctor_f" id="doctor_f" class="form-control">
+                            <option></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
             <div id="calendar"></div>
 
             <div class="modal fade" role="dialog" id="event-modal">
@@ -27,7 +52,7 @@
                                 <label for="service">Servicio</label>
                                 <div class="input-group">
                                     <select class="form-control select-2-g-append" id="service">
-                                        <option value="" selected disabled></option>
+                                        <option></option>
                                         @foreach($services as $id => $service)
                                             <option value="{{ $id }}">{{ $service }}</option>
                                         @endforeach
@@ -53,11 +78,11 @@
                                 </div>
                                 <div class="row">
                                     <div class="form-group col-lg col-md-12">
-                                        <label for="start_date">Fecha Inicio</label>
+                                        <label for="start_date">Hora Inicio</label>
                                         <input type="text" class="form-control" id="start_date"/>
                                     </div>
                                     <div class="form-group col-lg col-md-12">
-                                        <label for="end_date">Fecha Fin</label>
+                                        <label for="end_date">Hora Fin</label>
                                         <input type="text" class="form-control" id="end_date"/>
                                     </div>
                                 </div>
@@ -79,14 +104,16 @@
     <script src={{ asset('js/bootstrap-datetimepicker.js') }}></script>
 
     <script>
+        let events = [];
         (() => {
-            let calendar = null;
+            let calendar = null,
+                height = $(window).height() - 250;
             document.addEventListener('DOMContentLoaded', function() {
                 let calendarEl = document.getElementById('calendar');
                 calendar = new FullCalendar.Calendar(calendarEl, {
                     themeSystem: 'bootstrap4',
                     plugins: [ 'bootstrap', 'dayGrid', 'timeGrid', 'list', 'interaction', 'resourceTimeGrid' ],
-                    height: $(window).height() - 250,
+                    height: height > 300 ? height : 300,
                     //aspectRatio: 2.4,
                     header: {
                         left: 'prev,next today',
@@ -103,13 +130,18 @@
                     editable: true,
                     eventLimit: true, // allow "more" link when too many events
                     allDaySlot: false,
-                    locale: 'en',
+                    locale: 'es',
                     slotLabelFormat: {
                         hour: 'numeric',
                         minute: '2-digit',
                         omitZeroMinute: true,
                         meridiem: 'short'
                     },
+                    windowResize: function(view) {
+                        let height = $(window).height() - 250;
+                        height = height > 300 ? height : 300;
+                        calendar.setOption('height', height);
+                    }
                 });
 
                 calendar.render();
@@ -117,15 +149,21 @@
 
             $('#addEvent').click(function () {
                 let date = $('#date').val(),
+                    customer = $('#customer').val(),
                     start = $('#start_date').val(),
-                    end = $('#end_date').val();
+                    end = $('#end_date').val(),
+                    event = {
+                        title: `Cita ${customer}`,
+                        start: moment(`${date} ${start}`, 'DD/MM/YYYY h:mm:ss A').format('Y-MM-DD HH:mm:ss'),
+                        end: moment(`${date} ${end}`, 'DD/MM/YYYY h:mm:ss A').format('Y-MM-DD HH:mm:ss'),
+                        resourceId: 'a',
+                        customer: customer,
+                    };
 
-                calendar.addEvent({
-                    title: 'dynamic event',
-                    start: moment(`${date} ${start}`).format('Y-MM-DD HH:mm:ss'),
-                    end: moment(`${date} ${end}`).format('Y-MM-DD HH:mm:ss'),
-                    resourceId: 'a',
-                });
+                calendar.addEvent(event);
+                events.push(event);
+
+                $('#event-modal').modal('hide');
             });
 
             $('#date').datetimepicker({
@@ -145,8 +183,18 @@
                 },
             });
 
-            $('#service').select2();
-            $('#doctor').select2();
+            $('#service').select2({
+                placeholder: 'Servicio',
+            });
+            $('#doctor').select2({
+                placeholder: 'Médico',
+            });
+            $('#branch_f').select2({
+                placeholder: 'Sucursal',
+            });
+            $('#doctor_f').select2({
+                placeholder: 'Médico',
+            });
 
             $('#customer').select2({
                 language: 'es',
