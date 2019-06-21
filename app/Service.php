@@ -14,6 +14,6 @@ class Service extends Model
      * @var array
      */
     protected $fillable = [
-        'name',
+        'name', 'time_slot'
     ];
 }

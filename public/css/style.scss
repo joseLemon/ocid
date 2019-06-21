@@ -34,7 +34,7 @@ table {
 }
 
 .fc-axis.fc-widget-header {
-    width: 46px!important;
+    width: 45px!important;
 }
 
 .fc-title {
@@ -48,6 +48,11 @@ table {
     flex: 1 1 auto;
     width: 1%!important;
     margin-bottom: 0;
+}
+
+.select2-selection__clear {
+    padding-right: 15px;
+    z-index: 1;
 }
 
 // SIDE-MENU

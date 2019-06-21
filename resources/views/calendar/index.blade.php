@@ -45,16 +45,21 @@
                         </div>
                         <div class="modal-body">
                             <div class="form-group">
-                                <label for="doctor">Doctor</label>
-                                <select class="form-control" id="doctor"></select>
+                                <label for="doctor">Médico</label>
+                                <select class="form-control" id="doctor">
+                                    <option></option>
+                                    @foreach($doctors as $id => $doctor)
+                                        <option value="{{ $id }}">{{ $doctor }}</option>
+                                    @endforeach
+                                </select>
                             </div>
                             <div class="form-group">
                                 <label for="service">Servicio</label>
                                 <div class="input-group">
                                     <select class="form-control select-2-g-append" id="service">
                                         <option></option>
-                                        @foreach($services as $id => $service)
-                                            <option value="{{ $id }}">{{ $service }}</option>
+                                        @foreach($services as $service)
+                                            <option value="{{ $service->id }}" data-time="{{ $service->time_slot }}">{{ $service->name }}</option>
                                         @endforeach
                                     </select>
                                     <div class="input-group-append">
@@ -78,12 +83,12 @@
                                 </div>
                                 <div class="row">
                                     <div class="form-group col-lg col-md-12">
-                                        <label for="start_date">Hora Inicio</label>
-                                        <input type="text" class="form-control" id="start_date"/>
+                                        <label for="start_time">Hora Inicio</label>
+                                        <input type="text" class="form-control" id="start_time"/>
                                     </div>
                                     <div class="form-group col-lg col-md-12">
-                                        <label for="end_date">Hora Fin</label>
-                                        <input type="text" class="form-control" id="end_date"/>
+                                        <label for="end_time">Hora Fin</label>
+                                        <input type="text" class="form-control" id="end_time"/>
                                     </div>
                                 </div>
                             </div>
@@ -107,6 +112,11 @@
         let events = [];
         (() => {
             let calendar = null,
+                doctors = [
+                    @foreach($doctors as $id => $doctor)
+                    { id: "{{ $id }}", title: "{{ $doctor }}" },
+                    @endforeach
+                ],
                 height = $(window).height() - 250;
             document.addEventListener('DOMContentLoaded', function() {
                 let calendarEl = document.getElementById('calendar');
@@ -120,12 +130,7 @@
                         center: 'title',
                         right: 'dayGridMonth,timeGridWeek,resourceTimeGridDay,listWeek'
                     },
-                    resources: [
-                        { id: 'a', title: 'Room A' },
-                        { id: 'b', title: 'Room B'},
-                        { id: 'c', title: 'Room C' },
-                        { id: 'd', title: 'Room D' }
-                    ],
+                    resources: doctors,
                     navLinks: true, // can click day/week names to navigate views
                     editable: true,
                     eventLimit: true, // allow "more" link when too many events
@@ -134,8 +139,12 @@
                     slotLabelFormat: {
                         hour: 'numeric',
                         minute: '2-digit',
-                        omitZeroMinute: true,
-                        meridiem: 'short'
+                        omitZeroMinute: false,
+                        meridiem: 'narrow'
+                    },
+                    dateClick: function (info) {
+                        $('#date').val(moment(info.dateStr, 'YYYY-MM-DD').format('DD/MM/YYYY'));
+                        $('#event-modal').modal('show');
                     },
                     windowResize: function(view) {
                         let height = $(window).height() - 250;
@@ -147,18 +156,61 @@
                 calendar.render();
             });
 
+            let doctor = $('#doctor'),
+                service = $('#service'),
+                customer = $('#customer'),
+                date = $('#date'),
+                start = $('#start_time'),
+                end = $('#end_time'),
+                selServ = null;
+
+            let checkEvents = (date, hour) => {
+                let dates = events.filter(obj => {
+                    return obj.date === date;
+                });
+                dates.forEach(function (item, i) {
+                    let mStart = moment(moment(item.start, 'Y-MM-DD HH:mm:ss').format('h:mm:ss A')),
+                        mEnd = moment(moment(item.end, 'Y-MM-DD HH:mm:ss').format('h:mm:ss A')),
+                        range = moment(hour, 'h:mm:ss A');
+                    console.log(mStart, mEnd, range);
+                    console.log(range.isBetween(mStart, mEnd) || range.isSame(mStart) || range.isSame(mEnd));
+                })
+            };
+
             $('#addEvent').click(function () {
-                let date = $('#date').val(),
-                    customer = $('#customer').val(),
-                    start = $('#start_date').val(),
-                    end = $('#end_date').val(),
-                    event = {
-                        title: `Cita ${customer}`,
-                        start: moment(`${date} ${start}`, 'DD/MM/YYYY h:mm:ss A').format('Y-MM-DD HH:mm:ss'),
-                        end: moment(`${date} ${end}`, 'DD/MM/YYYY h:mm:ss A').format('Y-MM-DD HH:mm:ss'),
-                        resourceId: 'a',
-                        customer: customer,
-                    };
+                let errors = '';
+                checkEvents(date.val(), start.val());
+                checkEvents(date.val(), end.val());
+
+                if (doctor.val() === '' || doctor.val() === null)
+                    errors += 'El médico es obligatorio<br>';
+                if (service.val() === '' || service.val() === null)
+                    errors += 'El servicio es obligatorio<br>';
+                if (customer.val() === '' || customer.val() === null)
+                    errors += 'El cliente es obligatorio<br>';
+                if (date.val() === '' || date.val() === null)
+                    errors += 'La fecha es obligatoria<br>';
+                if (start.val() === '' || start.val() === null)
+                    errors += 'La hora de inicio es obligatoria<br>';
+                if (end.val() === '' || end.val() === null)
+                    errors += 'La hora de fin es obligatoria<br>';
+
+                if (errors !== '') {
+                    $.alert(errors);
+                    return;
+                }
+
+                let event = {
+                    doctor: doctor.val(),
+                    service: service.val(),
+                    customer: customer.val(),
+                    title: `${customer.find('option:selected').text()}`,
+                    date: `${date.val()}`,
+                    start: moment(`${date.val()} ${start.val()}`, 'DD/MM/YYYY h:mm:ss A').format('Y-MM-DD HH:mm:ss'),
+                    end: moment(`${date.val()} ${end.val()}`, 'DD/MM/YYYY h:mm:ss A').format('Y-MM-DD HH:mm:ss'),
+                    // ROOM
+                    resourceId: doctor.val().toString(),
+                };
 
                 calendar.addEvent(event);
                 events.push(event);
@@ -166,16 +218,16 @@
                 $('#event-modal').modal('hide');
             });
 
-            $('#date').datetimepicker({
+            date.datetimepicker({
                 format: 'DD/MM/YYYY',
                 defaultDate: false,
                 locale: 'es',
             });
 
-            $('#start_date, #end_date').datetimepicker({
+            $('#start_time, #end_time').datetimepicker({
                 format: 'hh:mm a',
                 showClear: true,
-                stepping: 10,
+                stepping: 5,
                 defaultDate: moment(8, "HH"),
                 icons: {
                     time: 'far fa-clock',
@@ -183,10 +235,32 @@
                 },
             });
 
-            $('#service').select2({
-                placeholder: 'Servicio',
+            start.focusout(function (e) {
+                let val = $(this).val(),
+                    time = selServ !== null ? selServ.time : 0,
+                    mStart = moment(val, 'h:mm:ss A'),
+                    mEnd = moment(end.val(), 'h:mm:ss A'),
+                    diff = mEnd.diff(mStart, 'minutes', true);
+                if (time > 0 && diff < time)
+                    end.val((mStart.add(time, 'minute').format('HH:mm a') ));
             });
-            $('#doctor').select2({
+
+            service.select2({
+                placeholder: 'Servicio',
+                allowClear: true,
+            }).on("select2:select", function (e) {
+                let optn = $(e.params.data.element),
+                    time = optn.data('time');
+                selServ = {
+                    service: service.val(),
+                    time: time
+                };
+                end.val(( moment(start.val(), 'h:mm:ss A').add(time, 'minute').format('HH:mm a') ));
+            }).on("select2:unselect", function () {
+                selServ = null;
+            });
+
+            doctor.select2({
                 placeholder: 'Médico',
             });
             $('#branch_f').select2({
@@ -196,9 +270,8 @@
                 placeholder: 'Médico',
             });
 
-            $('#customer').select2({
+            customer.select2({
                 language: 'es',
-                allowClear: true,
                 placeholder: 'Nombre del cliente',
                 ajax: {
                     url: '/customers/searchSelect',
