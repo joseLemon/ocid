@@ -45,6 +45,8 @@ Route::group(['middleware' => '\App\Http\Middleware\Authenticate'], function () 
     include('web/branches.php');
     //--- DOCTORS SECTION ---
     include('web/doctors.php');
+    //--- APPOINTMENTS SECTION ---
+    include('web/appointments.php');
 
     Route::get('/logout', '\App\Http\Controllers\Auth\LoginController@logout');
 

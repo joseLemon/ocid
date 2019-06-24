@@ -42,7 +42,7 @@ class ServiceController extends Controller
         DB::transaction(function () use ($data, &$service) {
             $service = Service::create([
                 'name' => $data['name'],
-                'time_slot' => $data['time_slot'] > 0 ? $data['time_slot'] : null,
+                'time_slot' => isset($data['time_slot']) && $data['time_slot'] > 0 ? $data['time_slot'] : null,
             ]);
         });
 
@@ -72,7 +72,7 @@ class ServiceController extends Controller
         DB::transaction(function () use ($data, $id, &$service) {
             $service = Service::find($id);
             $service->name = $data['name'];
-            $service->time_slot = $data['time_slot'] > 0 ? $data['time_slot'] : null;
+            $service->time_slot = isset($data['time_slot']) && $data['time_slot'] > 0 ? $data['time_slot'] : null;
             $service->save();
         });
 
