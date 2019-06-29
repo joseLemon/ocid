@@ -36,6 +36,27 @@
                             <span> Inicio </span>
                         </a>
                     </li>
+                    @if(auth()->user()->can(['read-appointments', 'create-appointments']))
+                        <li class="side-nav-item">
+                            <button class="btn side-nav-link" aria-expanded="false">
+                                <i class="fas fa-calendar-day"></i>
+                                <span> Citas </span>
+                                <span class="fas fa-chevron-right"></span>
+                            </button>
+                            <ul class="side-nav-second-level collapse" aria-expanded="false">
+                                @if(auth()->user()->can('create-appointments'))
+                                    <li>
+                                        <a href="/appointment">Agregar</a>
+                                    </li>
+                                @endif
+                                @if(auth()->user()->can('read-appointments'))
+                                    <li>
+                                        <a href="/appointments">Ver</a>
+                                    </li>
+                                @endif
+                            </ul>
+                        </li>
+                    @endif
                     @if(auth()->user()->can(['read-users', 'create-users']))
                         <li class="side-nav-item">
                             <button class="btn side-nav-link" aria-expanded="false">
