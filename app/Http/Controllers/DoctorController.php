@@ -3,8 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Branch;
-use App\Role;
 use App\User;
+use App\DoctorsDaysOff;
+use App\DoctorsShedule;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -50,6 +51,20 @@ class DoctorController extends Controller
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['sometimes', 'required', 'string', 'min:8', 'confirmed'],
             'branch' => ['required', 'exists:branches,id'],
+            'mon-time-start' => ['date_format:H:i'],
+            'mon-time-end' => ['date_format:H:i|after:mon-time-start'],
+            'tur-time-start' => ['date_format:H:i'],
+            'tur-time-end' => ['date_format:H:i|after:tur-time-start'],
+            'wen-time-start' => ['date_format:H:i'],
+            'wen-time-end' => ['date_format:H:i|after:wen-time-start'],
+            'thu-time-start' => ['date_format:H:i'],
+            'thu-time-end' => ['date_format:H:i|after:thu-time-start'],
+            'fri-time-start' => ['date_format:H:i'],
+            'fri-time-end' => ['date_format:H:i|after:fri-time-start'],
+            'sat-time-start' => ['date_format:H:i'],
+            'sat-time-end' => ['date_format:H:i|after:sat-time-start'],
+            'sun-time-start' => ['date_format:H:i'],
+            'sun-time-end' => ['date_format:H:i|after:sun-time-start'],
         ], [], [
             'name' => 'nombre',
             'email' => 'correo electrónico',
@@ -70,7 +85,7 @@ class DoctorController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $id],
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
-            'branch' => ['required', 'exists:branches,id'],
+
         ], [], [
             'name' => 'nombre',
             'email' => 'correo electrónico',
@@ -97,8 +112,62 @@ class DoctorController extends Controller
                 'password' => Hash::make($data['password']),
             ]);
             $user->roles()->attach(3);
+            $user->save();
         });
-        return redirect('/doctors');
+
+        /*DB::transaction(function () use ($data, $user) {
+            $doctorDaysOff = DoctorsDaysOff::create([
+                'user_id' => $user->id,
+                'day_off' => $data['email'],
+            ]);
+        });
+
+        DB::transaction(function () use ($data, $user) {
+            $doctorShedule = DoctorsShedule::insert([
+                'user_id' => $user->id,
+                'day' => '1',
+                'start_time' => $data['mon-time-start'],
+                'end_time' => $data['mon-time-end'],
+            ],
+            [
+                'user_id' => $user->id,
+                'day' => '2',
+                'start_time' => $data['tur-time-start'],
+                'end_time' => $data['tur-time-end'],
+            ],
+            [
+                'user_id' => $user->id,
+                'day' => '3',
+                'start_time' => $data['wen-time-start'],
+                'end_time' => $data['wen-time-end'],
+            ],
+            [
+                'user_id' => $user->id,
+                'day' => '4',
+                'start_time' => $data['thu-time-start'],
+                'end_time' => $data['thu-time-end'],
+            ],
+            [
+                'user_id' => $user->id,
+                'day' => '5',
+                'start_time' => $data['fri-time-start'],
+                'end_time' => $data['fri-time-end'],
+            ],
+            [
+                'user_id' => $user->id,
+                'day' => '6',
+                'start_time' => $data['sat-time-start'],
+                'end_time' => $data['sat-time-end'],
+            ],
+            [
+                'user_id' => $user->id,
+                'day' => '7',
+                'start_time' => $data['sun-time-start'],
+                'end_time' => $data['sun-time-end'],
+            ]);
+        });*/
+
+        return redirect('/doctors.index');
     }
 
     public function edit($id)

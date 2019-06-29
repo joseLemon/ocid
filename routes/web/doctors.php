@@ -13,7 +13,7 @@ Route::group(['middleware' => ['can:read-users']], function () {
 
 Route::group(['middleware' => ['can:create-users']], function () {
     Route::get('/doctor', [
-        'as' => 'doctor',
+        'as' => 'doctor.create',
         'uses' => 'DoctorController@create'
     ]);
     Route::post('/doctor', [

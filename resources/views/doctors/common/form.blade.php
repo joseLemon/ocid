@@ -13,7 +13,8 @@
             </li>
         </ul>
 
-        <form  method="POST" action="">
+        <form  method="POST" action="{{ route('doctor.create') }}">
+            @csrf
             <div class="tab-content">
                 <div class="tab-pane fade show active" id="form" role="tabpanel" aria-labelledby="home-tab">
                     <div class="row mt-3">
@@ -32,8 +33,12 @@
                             </div>
                         </div>
 
+
+
+
                         <div class="form-group col-lg-6 col-md-6">
                             <label for="branch" class="col-form-label text-md-right">{{ __('Sucursal') }}</label>
+
 
                             <div class="input-group">
                                 <select name="branch" id="branch" class="form-control @error('branch') is-invalid @enderror" name="branch" autocomplete="branch">
@@ -48,6 +53,7 @@
                                     </div>
                                 @endif
                             </div>
+
 
                             @error('branch')
                             <span class="invalid-feedback" role="alert">
@@ -71,6 +77,9 @@
                                 <input type="password" class="form-control" id="confirm_password" name="confirm_password">
                             </div>
                         </div>
+
+
+
 
                     </div>
                 </div>
@@ -153,9 +162,44 @@
                                         </div>
                                     </div>
                                 </div>
+
+                                <div class="w-100 spacing"></div>
+
+                                <div class="col-12">
+                                    <h4>
+                                        Descanso
+                                    </h4>
+                                </div>
+                                <div class="col-4">
+                                    <div class="input-group clockpicker">
+                                        <input type="text" name="mon-rest-time-start" id="mon-rest-time-start" class="form-control" value="09:30">
+                                        <div class="input-group-append">
+                                            <span class="input-group-text">
+                                                <i class="far fa-clock"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-2 text-center">
+                                    <p>
+                                        a:
+                                    </p>
+                                </div>
+                                <div class="col-4">
+                                    <div class="input-group clockpicker">
+                                        <input type="text" name="mon-rest-time-end" id="mon-rest-time-end" class="form-control" value="09:30">
+                                        <div class="input-group-append">
+                                            <span class="input-group-text">
+                                                <i class="far fa-clock"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
                             </div>
 
                         </div>
+
 
                         <div class="w-100 spacing"></div>
 
