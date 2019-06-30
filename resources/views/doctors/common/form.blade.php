@@ -13,24 +13,36 @@
             </li>
         </ul>
 
-        <form  method="POST" action="{{ route('doctor.create') }}">
+        <form  method="POST" action="{{ route('doctor.store') }}">
             @csrf
             <div class="tab-content">
                 <div class="tab-pane fade show active" id="form" role="tabpanel" aria-labelledby="home-tab">
                     <div class="row mt-3">
 
-                        <div class="col-6">
-                            <div class="form-group">
-                                <label for="name">Nombre</label>
-                                <input type="text" class="form-control" id="name" name="name" value="{{ $doctor->name  ?? null }}">
-                            </div>
+                        <div class="form-group col-lg-6 col-md-6">
+                            <label for="name" class="col-form-label text-md-right">{{ __('Name') }}</label>
+
+                            <input id="name" type="text" class="form-control @error('name') is-invalid @enderror" name="name" value="{{ $user->name ?? old('name') ?? null }}" required autocomplete="name" autofocus>
+
+                            @error('name')
+                            <span class="invalid-feedback" role="alert">
+                            <strong>{{ $message }}</strong>
+                            </span>
+                            @enderror
                         </div>
 
-                        <div class="col-6">
-                            <div class="form-group">
-                                <label for="email">Email</label>
-                                <input type="email" class="form-control" id="email" name="email" value="{{ $doctor->email  ?? null }}">
-                            </div>
+
+
+                        <div class="form-group col-lg-6 col-md-6">
+                            <label for="email" class="col-form-label text-md-right">{{ __('E-Mail Address') }}</label>
+
+                            <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ $user->email ?? old('email') ?? null }}" required autocomplete="email">
+
+                            @error('email')
+                            <span class="invalid-feedback" role="alert">
+                            <strong>{{ $message }}</strong>
+                            </span>
+                            @enderror
                         </div>
 
 
@@ -38,7 +50,6 @@
 
                         <div class="form-group col-lg-6 col-md-6">
                             <label for="branch" class="col-form-label text-md-right">{{ __('Sucursal') }}</label>
-
 
                             <div class="input-group">
                                 <select name="branch" id="branch" class="form-control @error('branch') is-invalid @enderror" name="branch" autocomplete="branch">
@@ -54,35 +65,44 @@
                                 @endif
                             </div>
 
-
                             @error('branch')
                             <span class="invalid-feedback" role="alert">
-                                <strong>{{ $message }}</strong>
+                            <strong>{{ $message }}</strong>
                             </span>
                             @enderror
                         </div>
 
+
+
+
                         <div class="w-100"></div>
 
-                        <div class="col-6">
-                            <div class="form-group">
-                                <label for="password">Contraseña</label>
-                                <input type="password" class="form-control" id="password" name="password">
-                            </div>
+
+                        <div class="form-group col-lg-6 col-md-6">
+                            <label for="password" class="col-form-label text-md-right">{{ __('Password') }}</label>
+
+                            <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" @if(!isset($user)){{ 'required' }}@endif autocomplete="new-password">
+
+                            @error('password')
+                            <span class="invalid-feedback" role="alert">
+                            <strong>{{ $message }}</strong>
+                            </span>
+                            @enderror
                         </div>
 
-                        <div class="col-6">
-                            <div class="form-group">
-                                <label for="confirm_password">Confirmar Contraseña</label>
-                                <input type="password" class="form-control" id="confirm_password" name="confirm_password">
-                            </div>
+
+                        <div class="form-group col-lg-6 col-md-6">
+                            <label for="password-confirm" class="col-form-label text-md-right">{{ __('Confirm Password') }}</label>
+
+                            <input id="password-confirm" type="password" class="form-control" name="password_confirmation" @if(!isset($user)){{ 'required' }}@endif autocomplete="new-password">
                         </div>
-
-
-
 
                     </div>
                 </div>
+
+
+
+
                 <div class="tab-pane fade" id="calendars" role="tabpanel" aria-labelledby="profile-tab">
 
                     <div class="row">
@@ -392,7 +412,9 @@
             </div>
 
             <div class="mt-2">
-                <button class="btn btn-primary btn-block">Guardar</button>
+                <button type="submit" class="btn btn-primary btn-block">
+                    {{ __('Guardar') }}
+                </button>
             </div>
 
         </form>
