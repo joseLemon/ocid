@@ -15,8 +15,17 @@ use Illuminate\Support\Facades\Validator;
 
 class AppointmentController extends Controller
 {
+    protected $branch;
+
     public function index()
     {
+        $user = auth()->user();
+        $role = $user->getRole();
+        if ($role === 'admin')
+            $this->branch = null;
+        else
+            $this->branch = $user->branches[0]->id;
+
         return view('appointments.index');
     }
 
@@ -231,6 +240,14 @@ class AppointmentController extends Controller
         // Searchbar string
         $search = $request->search['value'];
 
+        $user = auth()->user();
+        $role = $user->getRole();
+
+        if ($role === 'admin')
+            $this->branch = null;
+        else
+            $this->branch = $user->branches[0]->id;
+
         switch ($column) {
             case 0:
                 $column = 'appointments.id';
@@ -265,7 +282,12 @@ class AppointmentController extends Controller
             "users.name AS doctor_name",
         ])
             ->join('users', 'users.id', '=', 'appointments.doctor_id')
+            ->join('branches_users', 'branches_users.user_id', 'users.id')
             ->join('services', 'services.id', '=', 'appointments.service_id')
+            ->where(function ($q) {
+                if ($this->branch)
+                    $q->where('branches_users.branch_id', $this->branch);
+            })
             ->orderBy($column, $dir);
 
         if ($search) {

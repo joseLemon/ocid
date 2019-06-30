@@ -23,16 +23,12 @@ Auth::routes();
 //  Public web, but avoid access when logged.
 Route::group(['middleware' => '\App\Http\Middleware\Authenticate'], function () {
     Route::get('/', [
-        'as' => 'user.edit',
+        'as' => 'home',
         'uses' => 'HomeController@index'
     ]);
 
     Route::get('/home', function () {
         return redirect('/');
-    });
-
-    Route::get('/test', function () {
-        dd(\App\Customer::get()->toArray());
     });
 
     //--- USERS SECTION ---
@@ -47,6 +43,8 @@ Route::group(['middleware' => '\App\Http\Middleware\Authenticate'], function () 
     include('web/doctors.php');
     //--- APPOINTMENTS SECTION ---
     include('web/appointments.php');
+    //--- CALENDAR SECTION ---
+    include('web/calendar.php');
 
     Route::get('/logout', '\App\Http\Controllers\Auth\LoginController@logout');
 

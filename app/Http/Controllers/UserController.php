@@ -131,7 +131,7 @@ class UserController extends Controller
             $user->name = $data['name'];
             $user->email = $data['email'];
             if ($data['password'])
-                $user->password = $data['password'];
+                $user->password = Hash::make($data['password']);
             $user->save();
             $user->roles()->sync($data['role']);
             $user->branches()->sync($data['branch']);
@@ -175,6 +175,7 @@ class UserController extends Controller
         ])
             ->join('users_roles', 'users_roles.user_id', '=', 'users.id')
             ->join('roles', 'roles.id', '=', 'users_roles.role_id')
+            ->where('roles.id', '!=', 3)
             ->orderBy($column, $dir);
 
         if ($search) {

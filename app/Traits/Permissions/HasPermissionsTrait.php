@@ -56,6 +56,11 @@ trait HasPermissionsTrait
         return false;
     }
 
+    public function getRole()
+    {
+        return $this->roles[0]->slug;
+    }
+
     public function roles()
     {
         return $this->belongsToMany(Role::class, 'users_roles');

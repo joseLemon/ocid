@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\DB;
 
 class HomeController extends Controller
 {
+    protected $branch;
+    protected $role;
     /**
      * Create a new controller instance.
      *
@@ -36,23 +38,86 @@ class HomeController extends Controller
             DB::raw('IF(time_slot, CONCAT(name, " (", time_slot, " min)"), name) AS name'),
             'time_slot',
         ]);
+
         $branches = Branch::all()->pluck('name', 'id');
+
         $doctors = User::join('users_roles', 'users_roles.user_id', '=', 'users.id')
             ->join('roles', 'roles.id', '=', 'users_roles.role_id')
-            ->where('roles.id', 3)
+            ->join('branches_users', 'branches_users.user_id', 'users.id')
+            ->where(function ($q) {
+                $q->where('roles.id', 3);
+
+                if ($this->branch)
+                    $q->where('branches_users.branch_id', $this->branch);
+            })
             ->get('users.*');
 
         foreach ($doctors as $index => $doctor) {
             $dates = DoctorsDaysOff::where('user_id', $doctor->id)->pluck('day_off');
             foreach ($dates as $i => $date) {
-                $dates[$i] = Carbon::parse($date)->setYear(Carbon::now()->year);
+                $dates[$i] = Carbon::parse($date)->setYear(Carbon::now()->year)->format('Y/m/d');
+            }
+            $doctors[$index]->daysOff = $dates;
+        }
+
+        $user = auth()->user();
+        $role = $user->getRole();
+
+        if ($role === 'admin')
+            $this->branch = null;
+        else
+            $this->branch = $user->branches[0]->id;
+
+        $params = compact('services', 'branches', 'doctors', 'role');
+        return view('calendar.index', $params);
+    }
+
+    public function getCalendarData(Request $request) {
+        $user = auth()->user();
+        $role = $user->getRole();
+
+        if ($role === 'admin')
+            $this->branch = null;
+        else
+            $this->branch = $user->branches[0]->id;
+
+        $doctor_f = $request->doctor;
+        $branch_f = $this->branch ?? $request->branch;
+
+        $doctors = User::join('users_roles', 'users_roles.user_id', '=', 'users.id')
+            ->join('roles', 'roles.id', '=', 'users_roles.role_id')
+            ->join('branches_users', 'branches_users.user_id', 'users.id')
+            ->where(function ($q) use ($doctor_f, $branch_f) {
+                $q->where('roles.id', 3);
+
+                if ($doctor_f)
+                    $q->where('users.id', $doctor_f);
+
+                if ($branch_f)
+                    $q->where('branches_users.branch_id', $branch_f);
+            })
+            ->get(['users.*', 'branches_users.branch_id']);
+
+        foreach ($doctors as $index => $doctor) {
+            $dates = DoctorsDaysOff::where('user_id', $doctor->id)->pluck('day_off');
+            foreach ($dates as $i => $date) {
+                $dates[$i] = Carbon::parse($date)->setYear(Carbon::now()->year)->format('Y/m/d');
             }
             $doctors[$index]->daysOff = $dates;
         }
 
         $appointments = Appointment::join('users', 'users.id', '=', 'appointments.doctor_id')
-            //->join('customers', 'customers.id', '=', 'appointments.customer_id')
             ->join('services', 'services.id', '=', 'appointments.service_id')
+            ->join('branches_users', 'branches_users.user_id', 'users.id')
+            ->where(function ($q) use ($doctor_f, $branch_f) {
+                $q->whereYear('appointments.date', Carbon::now()->year);
+
+                if ($doctor_f)
+                    $q->where('users.id', $doctor_f);
+
+                if ($branch_f)
+                    $q->where('branches_users.branch_id', $branch_f);
+            })
             ->get([
                 'appointments.id',
                 'appointments.doctor_id',
@@ -65,13 +130,18 @@ class HomeController extends Controller
                 'services.name AS service_name',
             ]);
 
+        $customers = [];
         foreach ($appointments as $index => $item) {
             $appointments[$index]->status = $this->getStatusVal($item->status);
-            $appointments[$index]->customer_name = Customer::find($item->customer_id)->full_name;
+            if (!isset($customers[$item->customer_id]))
+                $customers[$item->customer_id] = Customer::find($item->customer_id)->full_name;
+            $appointments[$index]->customer_name = $customers[$item->customer_id];
         }
 
-        $params = compact('services', 'branches', 'doctors', 'appointments');
-        return view('calendar.index', $params);
+        return [
+            'doctors' => $doctors,
+            'appointments' => $appointments,
+        ];
     }
 
     private function getStatusVal($value)

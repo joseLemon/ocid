@@ -36,7 +36,7 @@
                             <span> Inicio </span>
                         </a>
                     </li>
-                    @if(auth()->user()->can(['read-appointments', 'create-appointments']))
+                    @canany(['read-appointments', 'create-appointments'])
                         <li class="side-nav-item">
                             <button class="btn side-nav-link" aria-expanded="false">
                                 <i class="fas fa-calendar-day"></i>
@@ -56,8 +56,8 @@
                                 @endif
                             </ul>
                         </li>
-                    @endif
-                    @if(auth()->user()->can(['read-users', 'create-users']))
+                    @endcanany
+                    @canany(['read-users', 'create-users'])
                         <li class="side-nav-item">
                             <button class="btn side-nav-link" aria-expanded="false">
                                 <i class="fas fa-user"></i>
@@ -77,7 +77,8 @@
                                 @endif
                             </ul>
                         </li>
-                    @endif
+                    @endcanany
+                    @canany(['read-users', 'create-users'])
                     <li class="side-nav-item">
                         <button class="btn side-nav-link" aria-expanded="false">
                             <i class="fas fa-user-md"></i>
@@ -85,15 +86,20 @@
                             <span class="fas fa-chevron-right"></span>
                         </button>
                         <ul class="side-nav-second-level collapse" aria-expanded="false">
-                            <li>
-                                <a href="/doctor">Agregar</a>
-                            </li>
-                            <li>
-                                <a href="">Ver</a>
-                            </li>
+                            @if(auth()->user()->can('create-users'))
+                                <li>
+                                    <a href="/doctor">Agregar</a>
+                                </li>
+                            @endif
+                            @if(auth()->user()->can('read-users'))
+                                <li>
+                                    <a href="/doctors">Ver</a>
+                                </li>
+                            @endif
                         </ul>
                     </li>
-                    @if(auth()->user()->can(['read-branches', 'create-branches']))
+                    @endcanany
+                    @canany(['read-branches', 'create-branches'])
                         <li class="side-nav-item">
                             <button class="btn side-nav-link" aria-expanded="false">
                                 <i class="fas fa-store-alt"></i>
@@ -113,8 +119,8 @@
                                 @endif
                             </ul>
                         </li>
-                    @endif
-                    @if(auth()->user()->can(['read-customers', 'create-customers']))
+                    @endcanany
+                    @canany(['read-customers', 'create-customers'])
                         <li class="side-nav-item">
                             <button class="btn side-nav-link" aria-expanded="false">
                                 <i class="fas fa-user-friends"></i>
@@ -134,8 +140,8 @@
                                 @endif
                             </ul>
                         </li>
-                    @endif
-                    @if(auth()->user()->can(['read-services', 'create-services']))
+                    @endcanany
+                    @canany(['read-services', 'create-services'])
                         <li class="side-nav-item">
                             <button class="btn side-nav-link" aria-expanded="false">
                                 <i class="fas fa-list"></i>
@@ -155,7 +161,13 @@
                                 @endif
                             </ul>
                         </li>
-                    @endif
+                    @endcanany
+                    <li class="side-nav-item">
+                        <a class="btn side-nav-link" href="/logout">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span> Cerrar sesión </span>
+                        </a>
+                    </li>
                 </ul>
             </div>
         </div>

@@ -7,41 +7,46 @@
     <div class="card">
         <div class="card-body">
             <div class="row">
-                <div class="col">
-                    <button data-toggle="modal" data-target="#event-modal" class="btn btn-primary mt-3">Agregar evento</button>
-                </div>
-                @if(auth()->user()->hasRole('admin'))
+                @if(!auth()->user()->hasRole('doctor'))
+                    <div class="col">
+                        <button data-toggle="modal" data-target="#event-modal" class="btn btn-primary mt-3">Agregar evento</button>
+                    </div>
+                    @if(auth()->user()->hasRole('admin'))
+                        <div class="col">
+                            <div class="form-group">
+                                <label for="branch_f">Sucursales</label>
+                                <select name="branch_f" id="branch_f" class="form-control">
+                                    <option></option>
+                                    @foreach($branches as $id => $branch)
+                                        <option value="{{ $id }}">{{ $branch }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                    @endif
                     <div class="col">
                         <div class="form-group">
-                            <label for="branch_f">Sucursales</label>
-                            <select name="branch_f" id="branch_f" class="form-control">
+                            <label for="doctor_f">Médicos</label>
+                            <select name="doctor_f" id="doctor_f" class="form-control">
                                 <option></option>
-                                @foreach($branches as $id => $branch)
-                                    <option value="{{ $id }}">{{ $branch }}</option>
+                                @foreach($doctors as $id => $doctor)
+                                    <option value="{{ $doctor->id }}">{{ $doctor->name }}</option>
                                 @endforeach
                             </select>
                         </div>
                     </div>
                 @endif
-                <div class="col">
-                    <div class="form-group">
-                        <label for="doctor_f">Médicos</label>
-                        <select name="doctor_f" id="doctor_f" class="form-control">
-                            <option></option>
-                            @foreach($doctors as $id => $doctor)
-                                <option value="{{ $doctor->id }}">{{ $doctor->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                </div>
             </div>
-            <div id="calendar"></div>
+
+            <div id="calendar">
+                <div class="text-center" id="calendar-spinner"><span class="spinner-border" role="status"></span></div>
+            </div>
 
             <div class="modal fade" role="dialog" id="event-modal">
                 <div class="modal-dialog modal-lg" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title">Agregar evento</h5>
+                            <h5 class="modal-title">Agregar cita</h5>
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
@@ -65,18 +70,22 @@
                                             <option value="{{ $service->id }}" data-time="{{ $service->time_slot }}">{{ $service->name }}</option>
                                         @endforeach
                                     </select>
-                                    <div class="input-group-append">
-                                        <button class="btn btn-success" type="button" id="addService">+</button>
-                                    </div>
+                                    @if(auth()->user()->can('create-services'))
+                                        <div class="input-group-append">
+                                            <button class="btn btn-success" type="button" id="addService">+</button>
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label for="customer">Cliente</label>
                                 <div class="input-group">
                                     <select class="form-control select-2-g-append" id="customer"></select>
-                                    <div class="input-group-append">
-                                        <button class="btn btn-success" type="button" id="addCustomer">+</button>
-                                    </div>
+                                    @if(auth()->user()->can('create-customers'))
+                                        <div class="input-group-append">
+                                            <button class="btn btn-success" type="button" id="addCustomer">+</button>
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
                             <div class="form-group">
@@ -107,8 +116,10 @@
                             <input type="hidden" id="appointment_id">
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-primary" id="addEvent">Guardar</button>
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                            @if(auth()->user()->can(['read-appointments', 'create-appointments']))
+                                <button type="button" class="btn btn-primary" id="addEvent">Guardar</button>
+                            @endif
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
                         </div>
                     </div>
                 </div>
@@ -133,26 +144,9 @@
                         return text ? '#721c24' : '#f5c6cb';
                 }
             },
-            events = [
-                @foreach($appointments as $item)
-                {
-                    id: Number({{ $item->id }}),
-                    title: '{{ $item->customer_name }} - {{ $item->service_name }}',
-                    doctor_id: Number({{ $item->doctor_id }}),
-                    service_id: Number({{ $item->service_id }}),
-                    customer_id: Number({{ $item->customer_id }}),
-                    customer_name: '{{ $item->customer_name }}',
-                    date: '{{ \Carbon\Carbon::parse($item->date)->format('d/m/Y') }}',
-                    start: '{{ $item->date.' '.$item->start }}',
-                    end: '{{ $item->date.' '.$item->end }}',
-                    resourceId: '{{ $item->doctor_id }}',
-                    status: Number({{ $item->status }}),
-                    color: getEventColor(Number({{ $item->status }})),
-                    textColor: getEventColor(Number({{ $item->status }}), true),
-                },
-                @endforeach
-            ];
+            events = [];
         (() => {
+            const role = '{{ $role }}';
             let doctor = $('#doctor'),
                 service = $('#service'),
                 customer = $('#customer'),
@@ -161,76 +155,142 @@
                 end = $('#end_time'),
                 status = $('#status'),
                 appId = $('#appointment_id'),
+                branch_f = $('#branch_f'),
+                doctor_f = $('#doctor_f'),
+                spinner = $('#calendar-spinner'),
                 selServ = null,
                 selDoc = null,
                 calendar = null,
-                doctors = [
-                    @foreach($doctors as $id => $doctor)
-                    {
-                        id: "{{ $doctor->id }}",
-                        title: "{{ $doctor->name }}",
-                        daysOff: {!! json_encode($doctor->daysOff) !!} ,
-                    },
-                    @endforeach
-                ],
-                height = $(window).height() - 300;
-            document.addEventListener('DOMContentLoaded', function() {
-                let calendarEl = document.getElementById('calendar');
-                calendar = new FullCalendar.Calendar(calendarEl, {
-                    themeSystem: 'bootstrap4',
-                    plugins: [ 'bootstrap', 'dayGrid', 'timeGrid', 'list', 'interaction', 'resourceTimeGrid' ],
-                    height: height > 600 ? height : 600,
-                    header: {
-                        left: 'prev,next today',
-                        center: 'title',
-                        right: 'dayGridMonth,timeGridWeek,resourceTimeGridDay,listWeek'
-                    },
-                    resources: doctors,
-                    navLinks: true, // can click day/week names to navigate views
-                    editable: false,
-                    eventLimit: true, // allow "more" link when too many events
-                    allDaySlot: false,
-                    locale: 'es',
-                    slotLabelFormat: {
-                        hour: 'numeric',
-                        minute: '2-digit',
-                        omitZeroMinute: false,
-                        meridiem: 'narrow'
-                    },
-                    defaultView: 'resourceTimeGridDay',
-                    eventClick: function (info) {
-                        $('#status_cont').removeClass('d-none');
-                        let event = events.find(function (obj) {
-                            return Number(obj.id) === Number(info.event.id);
-                        });
-                        appId.val(info.event.id);
-                        date.val(event.date);
-                        start.val(moment(event.start).format('hh:mm a'));
-                        end.val(moment(event.end).format('hh:mm a'));
-                        doctor.val(event.doctor_id).trigger('change');
-                        service.val(event.service_id).trigger('change');
-                        customer.html(`<option value="${event.customer_id}">${event.customer_name}</option>`);
-                        //customer.select2('trigger', 'select', { data: { id:event.customer_id } });
-                        customer.val(event.customer_id).trigger('change');
-                        status.val(event.status);
-                        initDoctorTime(true);
-                        $('#event-modal').modal('show');
-                    },
-                    dateClick: function (info) {
-                        date.val(moment(info.dateStr, 'YYYY-MM-DD').format('DD/MM/YYYY'));
-                        $.merge(start, end).val(moment(info.date).format('hh:mm a'));
-                        $('#event-modal').modal('show');
-                    },
-                    windowResize: function(view) {
-                        let height = $(window).height() - 300;
-                        height = height > 600 ? height : 600;
-                        calendar.setOption('height', height);
-                    },
-                    events: events,
-                });
+                doctors = [],
+                height = $(window).height() - 300,
+                getDataReq = null,
+                initCalendar = () => {
+                    spinner.addClass('d-none');
+                    let calendarEl = document.getElementById('calendar');
+                    calendar = new FullCalendar.Calendar(calendarEl, {
+                        themeSystem: 'bootstrap4',
+                        plugins: [ 'bootstrap', 'dayGrid', 'timeGrid', 'list', 'interaction', 'resourceTimeGrid' ],
+                        height: height > 600 ? height : 600,
+                        header: {
+                            left: 'prev,next today',
+                            center: 'title',
+                            right: 'dayGridMonth,timeGridWeek,resourceTimeGridDay,listWeek'
+                        },
+                        resources: doctors,
+                        navLinks: true, // can click day/week names to navigate views
+                        editable: false,
+                        eventLimit: true, // allow "more" link when too many events
+                        allDaySlot: false,
+                        locale: 'es',
+                        slotLabelFormat: {
+                            hour: 'numeric',
+                            minute: '2-digit',
+                            omitZeroMinute: false,
+                            meridiem: 'narrow'
+                        },
+                        defaultView: 'resourceTimeGridDay',
+                        eventClick: function (info) {
+                            $('#status_cont').removeClass('d-none');
+                            let event = events.find(function (obj) {
+                                return Number(obj.id) === Number(info.event.id);
+                            });
+                            appId.val(info.event.id);
+                            date.val(event.date);
+                            start.val(moment(event.start).format('hh:mm a'));
+                            end.val(moment(event.end).format('hh:mm a'));
+                            doctor.val(event.doctor_id).trigger('change');
+                            service.val(event.service_id).trigger('change');
+                            customer.html(`<option value="${event.customer_id}">${event.customer_name}</option>`);
+                            //customer.select2('trigger', 'select', { data: { id:event.customer_id } });
+                            customer.val(event.customer_id).trigger('change');
+                            status.val(event.status);
+                            initDoctorTime(true);
+                            $('#event-modal').modal('show');
+                        },
+                        dateClick: function (info) {
+                            date.val(moment(info.dateStr, 'YYYY-MM-DD').format('DD/MM/YYYY'));
+                            $.merge(start, end).val(moment(info.date).format('hh:mm a'));
+                            $('#event-modal').modal('show');
+                        },
+                        windowResize: function(view) {
+                            let height = $(window).height() - 300;
+                            height = height > 600 ? height : 600;
+                            calendar.setOption('height', height);
+                        },
+                        events: events,
+                    });
 
-                calendar.render();
-            });
+                    calendar.render();
+                },
+                getCalendarData = (init = false) => {
+                    if (!init && calendar) {
+                        spinner.removeClass('d-none');
+                        calendar.destroy();
+                    }
+                    if (branch_f.length > 0)
+                        doctor_f.prop('disabled', true);
+                    getDataReq = $.ajax({
+                        type: 'GET',
+                        url: '/home/getCalendarData',
+                        data: {
+                            doctor: doctor_f.val(),
+                            branch: branch_f.val(),
+                        },
+                        beforeSend : () => {
+                            if(getDataReq != null) {
+                                getDataReq.abort();
+                            }
+                        },
+                        success: (res) => {
+                            doctors = [];
+                            events = [];
+                            if (branch_f.length > 0) {
+                                doctor_f.prop('disabled', false);
+                                doctor_f.html('<option></option>');
+                            }
+                            res.doctors.forEach(function (item, i) {
+                                let doctor = {
+                                    id: Number(item.id),
+                                    title: item.name,
+                                    daysOff: item.daysOff,
+                                    branch: Number(item.branch_id),
+                                };
+                                doctors.push(doctor);
+                                if (branch_f.length > 0)
+                                    doctor_f.append(`<option value="${doctor.id}">${doctor.title}</option>`);
+                            });
+                            doctor_f.trigger('change');
+                            res.appointments.forEach(function (item, i) {
+                                events.push(
+                                    {
+                                        id: Number(item.id),
+                                        title: `${item.customer_name} - ${item.service_name}`,
+                                        doctor_id: Number(item.doctor_id),
+                                        service_id: Number(item.service_id),
+                                        customer_id: Number(item.customer_id),
+                                        customer_name: item.customer_name,
+                                        date: moment(item.date, 'YYYY-MM-DD').format('DD/MM/YYYY'),
+                                        start: `${item.date} ${item.start}`,
+                                        end: `${item.date} ${item.end}`,
+                                        resourceId: item.doctor_id,
+                                        status: Number(item.status),
+                                        color: getEventColor(Number(item.status)),
+                                        textColor: getEventColor(Number(item.status), true),
+                                    }
+                                );
+                            });
+                            initCalendar();
+                        },
+                        error: (res) => {
+                            if (res.statusText !== 'abort')
+                                $.alert({
+                                    title: 'Error',
+                                    type: 'red',
+                                    content: 'Ocurrió un error procesando la solicitud',
+                                });
+                        }
+                    })
+                };
             let checkEvents = (doctor, date, hour, start) => {
                     let dates = events.filter(obj => {
                             return Number(obj.doctor_id) === Number(doctor) && obj.date === date && Number(appId.val()) !== Number(obj.id);
@@ -419,6 +479,7 @@
 
                 }
             });
+            getCalendarData(true);
 
             $('#event-modal').on('hide.bs.modal', function () {
                 let modal = $(this),
@@ -426,6 +487,18 @@
                 inputs.val('').trigger('change');
                 $('#status_cont').addClass('d-none');
             }).on('show.bs.modal', function () {
+                let modal = $(this),
+                    text = '';
+                if (role === 'doctor') {
+                    text = 'Información de la Cita';
+                    modal.find('input').prop('readonly', true);
+                    modal.find('select').prop('disabled', true).trigger('change');
+                }  else if (appId.val() !== '')
+                    text = 'Editar Cita';
+                else
+                    text = 'Agregar Cita';
+
+                modal.find('.modal-title').text(text);
                 initDoctorTime();
             });
 
@@ -459,15 +532,25 @@
                 placeholder: 'Médico',
             }).on("select2:select", function (e) {
                 selDoc = doctors.find(function (obj) {
-                    return obj.id === doctor.val();
+                    return obj.id === Number(doctor.val());
                 });
                 initDoctorTime();
             });
-            $('#branch_f').select2({
+            branch_f.select2({
                 placeholder: 'Sucursal',
+                allowClear: true,
+            }).on("select2:select", function (e) {
+                getCalendarData();
+            }).on("select2:unselect", function (e) {
+                getCalendarData();
             });
-            $('#doctor_f').select2({
+            doctor_f.select2({
                 placeholder: 'Médico',
+                allowClear: true,
+            }).on("select2:select", function (e) {
+                getCalendarData();
+            }).on("select2:unselect", function (e) {
+                getCalendarData();
             });
 
             customer.select2({
