@@ -18,4 +18,12 @@
             donetext: "Aceptar",
         });
     </script>
+    <script>
+        var a = calendar.getEvents();
+        //var calen = $('#calendars').fullCalendar('getEventSources');
+
+
+        console.log(a);
+    </script>
+
 @stop
