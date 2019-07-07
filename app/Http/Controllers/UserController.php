@@ -111,7 +111,7 @@ class UserController extends Controller
         ];
         $roles = Role::where("slug", "!=", "doctor")->get();
         $branches = Branch::all();
-        $user = User::find($id)
+        $user = User::where('users.id', $id)
             ->join('users_roles', 'users_roles.user_id', '=', 'users.id')
             ->join('roles', 'roles.id', '=', 'users_roles.role_id')
             ->where('roles.id', '!=', 3)

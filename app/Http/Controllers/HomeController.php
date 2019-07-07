@@ -40,6 +40,14 @@ class HomeController extends Controller
             'time_slot',
         ]);
 
+        $user = auth()->user();
+        $role = $user->getRole();
+
+        if ($role === 'admin')
+            $this->branch = null;
+        else
+            $this->branch = $user->branches[0]->id;
+
         $branches = Branch::all()->pluck('name', 'id');
 
         $doctors = User::join('users_roles', 'users_roles.user_id', '=', 'users.id')
@@ -75,14 +83,6 @@ class HomeController extends Controller
             $doctors[$index]->daysOff = $data;
         }
 
-        $user = auth()->user();
-        $role = $user->getRole();
-
-        if ($role === 'admin')
-            $this->branch = null;
-        else
-            $this->branch = $user->branches[0]->id;
-
         $params = compact('services', 'branches', 'doctors', 'role');
         return view('calendar.index', $params);
     }
@@ -105,8 +105,8 @@ class HomeController extends Controller
             ->where(function ($q) use ($doctor_f, $branch_f) {
                 $q->where('roles.id', 3);
 
-                if ($doctor_f)
-                    $q->where('users.id', $doctor_f);
+                /*if ($doctor_f)
+                    $q->where('users.id', $doctor_f);*/
 
                 if ($branch_f)
                     $q->where('branches_users.branch_id', $branch_f);

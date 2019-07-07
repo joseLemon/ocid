@@ -244,6 +244,7 @@
                         success: (res) => {
                             doctors = [];
                             events = [];
+                            let currDval = doctor_f.val();
                             if (branch_f.length > 0) {
                                 doctor_f.prop('disabled', false);
                                 doctor_f.html('<option></option>');
@@ -256,8 +257,10 @@
                                     branch: Number(item.branch_id),
                                 };
                                 doctors.push(doctor);
-                                if (branch_f.length > 0)
-                                    doctor_f.append(`<option value="${doctor.id}">${doctor.title}</option>`);
+                                if (branch_f.length > 0) {
+                                    let selected = Number(currDval) === Number(doctor.id) ? 'selected' : '';
+                                    doctor_f.append(`<option value="${doctor.id}" ${selected}>${doctor.title}</option>`);
+                                }
                             });
                             doctor_f.trigger('change');
                             res.appointments.forEach(function (item, i) {
