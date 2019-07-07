@@ -9,7 +9,7 @@
             <div class="row">
                 @if(!auth()->user()->hasRole('doctor'))
                     <div class="col">
-                        <button data-toggle="modal" data-target="#event-modal" class="btn btn-primary mt-3">Agregar evento</button>
+                        <button data-toggle="modal" data-target="#event-modal" class="btn btn-primary mt-3">Agregar cita</button>
                     </div>
                     @if(auth()->user()->hasRole('admin'))
                         <div class="col">

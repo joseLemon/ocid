@@ -9,6 +9,7 @@ use App\Branch;
 use App\Service;
 use App\Appointment;
 use Carbon\Carbon;
+use Carbon\CarbonPeriod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -53,11 +54,25 @@ class HomeController extends Controller
             ->get('users.*');
 
         foreach ($doctors as $index => $doctor) {
-            $dates = DoctorsDaysOff::where('user_id', $doctor->id)->pluck('day_off');
-            foreach ($dates as $i => $date) {
-                $dates[$i] = Carbon::parse($date)->setYear(Carbon::now()->year)->format('Y/m/d');
+            $dates = DoctorsDaysOff::where('user_id', $doctor->id)->get([
+                'day_off',
+                'end_day_off',
+            ])
+                ->where('day_off', '>', Carbon::now()->format('Y-m-d'));
+            $data = [];
+            foreach ($dates as $i => $item) {
+                $start = Carbon::parse($item->day_off)->setYear(Carbon::now()->year)->format('Y/m/d');
+                $end = $item->end_day_off ? Carbon::parse($item->end_day_off)->setYear(Carbon::now()->year)->format('Y/m/d') : null;
+                $data[] = $start;
+                if ($end) {
+                    $data[] = $end;
+                    $period = CarbonPeriod::create($item->day_off, $item->end_day_off);
+                    foreach ($period as $date) {
+                        $data[] = $date->setYear(Carbon::now()->year)->format('Y/m/d');
+                    }
+                }
             }
-            $doctors[$index]->daysOff = $dates;
+            $doctors[$index]->daysOff = $data;
         }
 
         $user = auth()->user();
@@ -99,11 +114,25 @@ class HomeController extends Controller
             ->get(['users.*', 'branches_users.branch_id']);
 
         foreach ($doctors as $index => $doctor) {
-            $dates = DoctorsDaysOff::where('user_id', $doctor->id)->pluck('day_off');
-            foreach ($dates as $i => $date) {
-                $dates[$i] = Carbon::parse($date)->setYear(Carbon::now()->year)->format('Y/m/d');
+            $dates = DoctorsDaysOff::where('user_id', $doctor->id)->get([
+                'day_off',
+                'end_day_off',
+            ])
+                ->where('day_off', '>', Carbon::now()->format('Y-m-d'));
+            $data = [];
+            foreach ($dates as $i => $item) {
+                $start = Carbon::parse($item->day_off)->setYear(Carbon::now()->year)->format('Y/m/d');
+                $end = $item->end_day_off ? Carbon::parse($item->end_day_off)->setYear(Carbon::now()->year)->format('Y/m/d') : null;
+                $data[] = $start;
+                if ($end) {
+                    $data[] = $end;
+                    $period = CarbonPeriod::create($item->day_off, $item->end_day_off);
+                    foreach ($period as $date) {
+                        $data[] = $date->setYear(Carbon::now()->year)->format('Y/m/d');
+                    }
+                }
             }
-            $doctors[$index]->daysOff = $dates;
+            $doctors[$index]->daysOff = $data;
         }
 
         $appointments = Appointment::join('users', 'users.id', '=', 'appointments.doctor_id')

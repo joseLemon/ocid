@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Branch;
 use App\User;
 use App\DoctorsDaysOff;
-use App\DoctorsShedule;
+use App\DoctorsSchedule;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -56,15 +56,15 @@ class DoctorController extends Controller
 
         return Validator::make($data, [
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['sometimes', 'required', 'string', 'min:8', 'confirmed'],
+            'email' => ['string', 'email', 'max:255', 'unique:users', 'nullable'],
+            'password' => ['sometimes', 'required_with:email', 'string', 'min:8', 'confirmed', 'nullable'],
             'branch' => ['required', 'exists:branches,id'],
             /*'mon-time-start' => ['required', 'date_format:H:i'],
             'mon-time-end' => ['required', 'date_format:H:i'],
             'tus-time-start' => ['required', 'date_format:H:i'],
             'tus-time-end' => ['required', 'date_format:H:i'],
-            'wen-time-start' => ['required', 'date_format:H:i'],
-            'wen-time-end' => ['required', 'date_format:H:i'],
+            'wed-time-start' => ['required', 'date_format:H:i'],
+            'wed-time-end' => ['required', 'date_format:H:i'],
             'thu-time-start' => ['required', 'date_format:H:i'],
             'thu-time-end' => ['required', 'date_format:H:i'],
             'fri-time-start' => ['required', 'date_format:H:i'],
@@ -109,8 +109,6 @@ class DoctorController extends Controller
     {
         $data = $request->all();
 
-        dd($data);
-
         $this->validator($request->all())->validate();
 
         DB::transaction(function () use ($data) {
@@ -119,111 +117,87 @@ class DoctorController extends Controller
                 'email' => $data['email'],
                 'password' => Hash::make($data['password']),
             ]);
-            $user->roles()->attach(3);
             $user->save();
+            $user->roles()->attach(3);
+            $user->branches()->sync($data['branch']);
 
-
-
-            $dataShedule = array(
-                array(
+            $dataSchedule = [];
+            if ($data['mon-time-start'])
+                foreach ($data['mon-time-start'] as $index => $start)
+                $dataSchedule[] = [
                     'user_id' => $user->id,
                     'day' => 1,
-                    'start_time' => $data['mon-time-start'],
-                    'end_time' => $data['mon-time-end'],
-                ),
-                array(
+                    'start_time' => $start,
+                    'end_time' => $data['mon-time-end'][$index],
+                    'main' => $index == 0 ? 1 : null,
+                ];
+
+            if ($data['tue-time-start'])
+                foreach ($data['tue-time-start'] as $index => $start)
+                $dataSchedule[] = [
                     'user_id' => $user->id,
                     'day' => 2,
-                    'start_time' => $data['tur-time-start'],
-                    'end_time' => $data['tur-time-end'],
-                ),
-                array(
+                    'start_time' => $start,
+                    'end_time' => $data['tue-time-end'][$index],
+                    'main' => $index == 0 ? 1 : null,
+                ];
+
+            if ($data['wed-time-start'])
+                foreach ($data['wed-time-start'] as $index => $start)
+                $dataSchedule[] = [
                     'user_id' => $user->id,
                     'day' => 3,
-                    'start_time' => $data['wen-time-start'],
-                    'end_time' => $data['wen-time-end'],
-                ),
-                array(
+                    'start_time' => $start,
+                    'end_time' => $data['wed-time-end'][$index],
+                    'main' => $index == 0 ? 1 : null,
+                ];
+
+            if ($data['thu-time-start'])
+                foreach ($data['thu-time-start'] as $index => $start)
+                $dataSchedule[] = [
                     'user_id' => $user->id,
                     'day' => 4,
-                    'start_time' => $data['thu-time-start'],
-                    'end_time' => $data['thu-time-end'],
-                ),
-                array(
+                    'start_time' => $start,
+                    'end_time' => $data['thu-time-end'][$index],
+                    'main' => $index == 0 ? 1 : null,
+                ];
+
+            if ($data['fri-time-start'])
+                foreach ($data['fri-time-start'] as $index => $start)
+                $dataSchedule[] = [
                     'user_id' => $user->id,
                     'day' => 5,
-                    'start_time' => $data['fri-time-start'],
-                    'end_time' => $data['fri-time-end'],
-                ),
-                array(
+                    'start_time' => $start,
+                    'end_time' => $data['fri-time-end'][$index],
+                    'main' => $index == 0 ? 1 : null,
+                ];
+
+            if ($data['sat-time-start'])
+                foreach ($data['sat-time-start'] as $index => $start)
+                $dataSchedule[] = [
                     'user_id' => $user->id,
                     'day' => 6,
-                    'start_time' => $data['sat-time-start'],
-                    'end_time' => $data['sat-time-end'],
-                ),
-            );
+                    'start_time' => $start,
+                    'end_time' => $data['sat-time-end'][$index],
+                    'main' => $index == 0 ? 1 : null,
+                ];
 
-            DoctorsShedule::insert($dataShedule);
+            DoctorsSchedule::insert($dataSchedule);
 
-            return redirect('/doctors');
-
-
-            /*
-            $doctorShedule = DoctorsShedule::create([
-                'user_id' => $user->id,
-                'day' => '1',
-                'start_time' => $data['mon-time-start'],
-                'end_time' => $data['mon-time-end'],
-                ],
-                [
+            $doctorDaysOff = [];
+            $off = json_decode(urldecode($data['days_off']));
+            foreach ($off as $item) {
+                $doctorDaysOff[] = [
                     'user_id' => $user->id,
-                    'day' => '2',
-                    'start_time' => $data['tur-time-start'],
-                    'end_time' => $data['tur-time-end'],
-                ],
-                [
-                    'user_id' => $user->id,
-                    'day' => '3',
-                    'start_time' => $data['wen-time-start'],
-                    'end_time' => $data['wen-time-end'],
-                ],
-                [
-                    'user_id' => $user->id,
-                    'day' => '4',
-                    'start_time' => $data['thu-time-start'],
-                    'end_time' => $data['thu-time-end'],
-                ],
-                [
-                    'user_id' => $user->id,
-                    'day' => '5',
-                    'start_time' => $data['fri-time-start'],
-                    'end_time' => $data['fri-time-end'],
-                ],
-                [
-                    'user_id' => $user->id,
-                    'day' => '6',
-                    'start_time' => $data['sat-time-start'],
-                    'end_time' => $data['sat-time-end'],
-                ]);
-
-            $doctorShedule->save();
-*/
+                    'day_off' => Carbon::parse($item->date)->format('Y-m-d'),
+                    'end_day_off' => $item->date_end ? Carbon::parse($item->date_end)->format('Y-m-d') : null,
+                    'title' => $item->title,
+                ];
+            }
+            DoctorsDaysOff::insert($doctorDaysOff);
         });
 
-
-
-
-
-
-
-        /*
-        DB::transaction(function () use ($data, $user) {
-            $doctorDaysOff = DoctorsDaysOff::create([
-                'user_id' => $user->id,
-                'day_off' => $data['email'],
-            ]);
-        });
-        */
+        return redirect('/doctors');
     }
 
     public function edit($id)
@@ -233,8 +207,27 @@ class DoctorController extends Controller
             'route' => "/doctor/$id",
         ];
         $branches = Branch::all();
-        $user = User::find($id);
-        $params = compact('crumb2',  'branches', 'user');
+        $user = User::where('users.id', $id)
+            ->join('users_roles', 'users_roles.user_id', '=', 'users.id')
+            ->join('roles', 'roles.id', '=', 'users_roles.role_id')
+            ->where('roles.id', 3)
+            ->first(['users.*']);
+        if (!$user)
+            abort(404);
+        $user->roles;
+        $user->branches;
+        $user->role = $user->roles[0]->id ?? null;
+        $user->branch = $user->branches[0]->id ?? null;
+        $schedules = DoctorsSchedule::where('user_id', $id)
+            ->get();
+        $arrangedSchedules = [];
+        foreach ($schedules as $item) {
+            $arrangedSchedules[$item->day][]  = [
+                'start_time' => Carbon::parse($item->start_time)->format('H:i'),
+                'end_time' => Carbon::parse($item->end_time)->format('H:i'),
+            ];
+        }
+        $params = compact('crumb2',  'branches', 'user', 'arrangedSchedules', 'days_off');
         return view('doctors.edit', $params);
     }
 
@@ -242,7 +235,7 @@ class DoctorController extends Controller
     {
         $data = $request->all();
 
-        $this->updateValidator($request->all(), $id)->validate();
+        $this->validator($request->all(), $id)->validate();
 
         DB::transaction(function () use ($data, $id) {
             $user = User::find($id);
@@ -252,7 +245,175 @@ class DoctorController extends Controller
                 $user->password = $data['password'];
             $user->save();
             $user->roles()->sync(3);
+            $user->branches()->sync($data['branch']);
+
+            DoctorsSchedule::where('user_id', $id)
+                ->delete();
+            DoctorsDaysOff::where('user_id', $id)
+                ->delete();
+
+            $dataSchedule = [];
+            if ($data['mon-time-start'])
+                foreach ($data['mon-time-start'] as $index => $start)
+                    $dataSchedule[] = [
+                        'user_id' => $user->id,
+                        'day' => 1,
+                        'start_time' => $start,
+                        'end_time' => $data['mon-time-end'][$index],
+                        'main' => $index == 0 ? 1 : null,
+                    ];
+
+            if ($data['tue-time-start'])
+                foreach ($data['tue-time-start'] as $index => $start)
+                    $dataSchedule[] = [
+                        'user_id' => $user->id,
+                        'day' => 2,
+                        'start_time' => $start,
+                        'end_time' => $data['tue-time-end'][$index],
+                        'main' => $index == 0 ? 1 : null,
+                    ];
+
+            if ($data['wed-time-start'])
+                foreach ($data['wed-time-start'] as $index => $start)
+                    $dataSchedule[] = [
+                        'user_id' => $user->id,
+                        'day' => 3,
+                        'start_time' => $start,
+                        'end_time' => $data['wed-time-end'][$index],
+                        'main' => $index == 0 ? 1 : null,
+                    ];
+
+            if ($data['thu-time-start'])
+                foreach ($data['thu-time-start'] as $index => $start)
+                    $dataSchedule[] = [
+                        'user_id' => $user->id,
+                        'day' => 4,
+                        'start_time' => $start,
+                        'end_time' => $data['thu-time-end'][$index],
+                        'main' => $index == 0 ? 1 : null,
+                    ];
+
+            if ($data['fri-time-start'])
+                foreach ($data['fri-time-start'] as $index => $start)
+                    $dataSchedule[] = [
+                        'user_id' => $user->id,
+                        'day' => 5,
+                        'start_time' => $start,
+                        'end_time' => $data['fri-time-end'][$index],
+                        'main' => $index == 0 ? 1 : null,
+                    ];
+
+            if ($data['sat-time-start'])
+                foreach ($data['sat-time-start'] as $index => $start)
+                    $dataSchedule[] = [
+                        'user_id' => $user->id,
+                        'day' => 6,
+                        'start_time' => $start,
+                        'end_time' => $data['sat-time-end'][$index],
+                        'main' => $index == 0 ? 1 : null,
+                    ];
+
+            DoctorsSchedule::insert($dataSchedule);
+
+            $doctorDaysOff = [];
+            $off = json_decode(urldecode($data['days_off']));
+            foreach ($off as $item) {
+                $doctorDaysOff[] = [
+                    'user_id' => $user->id,
+                    'day_off' => Carbon::parse($item->date)->format('Y-m-d'),
+                    'end_day_off' => $item->date_end ? Carbon::parse($item->date_end)->format('Y-m-d') : null,
+                    'title' => $item->title,
+                ];
+            }
+            DoctorsDaysOff::insert($doctorDaysOff);
         });
         return redirect('/doctors');
+    }
+
+    /**
+     * @param Request $request
+     * @return array
+     */
+    public function getDaysOff(Request $request)
+    {
+        $id = $request->id;
+        $off = DoctorsDaysOff::where('user_id', $id)
+            ->get();
+        $days_off = [];
+        foreach ($off as $item) {
+            $date = Carbon::parse($item->day_off);
+            $month = $date->month;
+            $days_off[$month][] = [
+                'title' => $item->title,
+                'date' => $date->format('m-d'),
+                'end_date' => $item->end_day_off ? Carbon::parse($item->end_day_off)->format('m-d') : null,
+            ];
+        }
+        return [
+            'success' => true,
+            'data' => $days_off,
+        ];
+    }
+
+    public function search(Request $request)
+    {
+        // Order-by data
+        $column = $request->order[0]['column'];
+        $dir = $request->order[0]['dir'];
+
+        // Skip-Take data
+        $take = $request->length;
+        $current = $request->start / $take;
+        $skip = $take * $current;
+
+        // Searchbar string
+        $search = $request->search['value'];
+
+        switch ($column) {
+            case 0:
+                $column = 'users.id';
+                break;
+            case 1:
+                $column = 'users.name';
+                break;
+            case 2:
+                $column = 'roles.name';
+                break;
+            default:
+                $column = 'users.id';
+                break;
+        }
+
+        $query = User::select([
+            "users.id",
+            "users.name",
+            "roles.name AS role",
+        ])
+            ->join('users_roles', 'users_roles.user_id', '=', 'users.id')
+            ->join('roles', 'roles.id', '=', 'users_roles.role_id')
+            ->where('roles.id', 3)
+            ->orderBy($column, $dir);
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where("users.name", "LIKE", "%$search%");
+            });
+        }
+
+        $total = $query->count();
+        $query = $query->skip($skip)->take($take);
+        $result = $query->get();
+
+        foreach ($result as $i => $item)
+            $result[$i]->roles;
+
+        $params = [
+            'data' => $result,
+            'draw' => $request->draw,
+            'recordsFiltered' => $total,
+            'recordsTotal' => $total,
+        ];
+
+        return response()->json($params);
     }
 }

@@ -31,6 +31,10 @@ Route::group(['middleware' => ['can:update-users']], function () {
         'as' => 'doctor.update',
         'uses' => 'DoctorController@update'
     ]);
+    Route::get('/doctors/getDaysOff', [
+        'as' => 'doctor.getDaysOff',
+        'uses' => 'DoctorController@getDaysOff'
+    ]);
 });
 
 Route::group(['middleware' => ['can:delete-users']], function () {

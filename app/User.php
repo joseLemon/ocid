@@ -43,4 +43,9 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Branch::class, 'branches_users');
     }
+
+    public function schedules()
+    {
+        return $this->belongsToMany(DoctorsSchedule::class, 'doctors_schedule');
+    }
 }

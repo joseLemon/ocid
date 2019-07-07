@@ -4,7 +4,15 @@
     @include('layouts.fullcalendar.header')
 @stop
 @section('content')
-    @include('doctors.common.form')
+    <div class="card">
+        <div class="card-body">
+            <form  method="POST" action="{{ route('doctor.update',[$user->id]) }}" id="doctorForm">
+                @csrf
+                @include('doctors.common.form')
+            </form>
+            <input type="hidden" id="doctor_id" value="{{ $user->id }}">
+        </div>
+    </div>
 @stop
 @section('scripts')
     @if(auth()->user()->can('create-branches'))
