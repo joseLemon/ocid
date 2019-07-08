@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Customer;
-use App\DoctorsDaysOff;
 use App\User;
 use App\Branch;
 use App\Service;
-use App\Appointment;
+use App\Customer;
 use Carbon\Carbon;
+use App\Appointment;
+use App\DoctorsDaysOff;
+use App\DoctorsSchedule;
 use Carbon\CarbonPeriod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -81,6 +82,17 @@ class HomeController extends Controller
                 }
             }
             $doctors[$index]->daysOff = $data;
+
+            $schedules = DoctorsSchedule::where('user_id', $doctor->id)
+                ->get();
+            $arrangedSchedules = [];
+            foreach ($schedules as $item) {
+                $arrangedSchedules[$item->day][]  = [
+                    'start_time' => Carbon::parse($item->start_time)->format('H:i'),
+                    'end_time' => Carbon::parse($item->end_time)->format('H:i'),
+                ];
+            }
+            $doctors[$index]->schedules = $arrangedSchedules;
         }
 
         $params = compact('services', 'branches', 'doctors', 'role');
@@ -133,6 +145,17 @@ class HomeController extends Controller
                 }
             }
             $doctors[$index]->daysOff = $data;
+
+            $schedules = DoctorsSchedule::where('user_id', $doctor->id)
+                ->get();
+            $arrangedSchedules = [];
+            foreach ($schedules as $item) {
+                $arrangedSchedules[$item->day][]  = [
+                    'start_time' => Carbon::parse($item->start_time)->format('H:i'),
+                    'end_time' => Carbon::parse($item->end_time)->format('H:i'),
+                ];
+            }
+            $doctors[$index]->schedules = $arrangedSchedules;
         }
 
         $appointments = Appointment::join('users', 'users.id', '=', 'appointments.doctor_id')

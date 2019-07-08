@@ -255,6 +255,7 @@
                                     title: item.name,
                                     daysOff: item.daysOff,
                                     branch: Number(item.branch_id),
+                                    schedules: item.schedules,
                                 };
                                 doctors.push(doctor);
                                 if (branch_f.length > 0) {
@@ -300,8 +301,8 @@
                         }),
                         check = false;
                     dates.forEach(function (item, i) {
-                        let mStart = moment(moment(item.start, 'Y-MM-DD HH:mm:ss').format('hh:mm a'), 'hh:mm a'),
-                            mEnd = moment(moment(item.end, 'Y-MM-DD HH:mm:ss').format('hh:mm a'), 'hh:mm a'),
+                        let mStart = moment(moment(item.start, 'Y-MM-DD hh:mm:ss').format('hh:mm a'), 'hh:mm a'),
+                            mEnd = moment(moment(item.end, 'Y-MM-DD hh:mm:ss').format('hh:mm a'), 'hh:mm a'),
                             range = moment(hour, 'hh:mm a');
                         if (range.isBetween(mStart, mEnd) || (start ? range.isSame(mStart) : range.isSame(mEnd))/*|| range.isSame(mStart) || range.isSame(mEnd)*/) {
                             check = true;
@@ -309,6 +310,37 @@
                         }
                     });
                     return check;
+                },
+                checkSchedules = () => {
+                    let check = true,
+                        check2 = true,
+                        dow = moment(date.val(), 'DD/MM/YYYY').day(),
+                        mStart = moment(start.val(), 'hh:mm a'),
+                        mEnd = moment(end.val(), 'hh:mm a'),
+                        schedule = 'Horario:<br>';
+                    if (selDoc.schedules[dow]) {
+                        selDoc.schedules[dow].forEach(function (item, i) {
+                            let scStart = moment(moment(item.start_time, 'hh:mm').format('hh:mm a'), 'hh:mm a'),
+                                scEnd = moment(moment(item.end_time, 'hh:mm').format('hh:mm a'), 'hh:mm a');
+                            if (mStart.isBetween(scStart, scEnd) || mStart.isSame(scStart) || mStart.isSame(scEnd) && check) {
+                                check = false;
+                            }
+                            if (mEnd.isBetween(scStart, scEnd) || mEnd.isSame(scStart) || mEnd.isSame(scEnd) && check2) {
+                                check2 = false;
+                            }
+
+                            schedule += `• De ${scStart.format('hh:mm a')} a ${scEnd.format('hh:mm a')}<br>`;
+                        });
+
+                        return {
+                            success: check || check2,
+                            schedule: schedule,
+                        };
+                    } else {
+                        return {
+                            success: false,
+                        }
+                    }
                 },
                 initDoctorTime = (init = false) => {
                     if (!init)
@@ -334,7 +366,7 @@
                         format: 'hh:mm a',
                         showClear: true,
                         stepping: 5,
-                        defaultDate: moment(8, "HH"),
+                        defaultDate: moment(8, "hh"),
                         icons: {
                             time: 'far fa-clock',
                             clear: 'fas fa-trash-alt',
@@ -378,6 +410,12 @@
                     return;
                 }
 
+                let schCheck = checkSchedules();
+                if (schCheck.success) {
+                    $.alert(`El periodo de tiempo elegido no se encuentra disponible dentro de los horarios del médico.<br><br>${schCheck.schedule}`);
+                    return false;
+                }
+
                 let event = {
                     doctor_id: doctor.val(),
                     service_id: service.val(),
@@ -385,8 +423,8 @@
                     customer_name: customer.find('option:selected').text(),
                     title: `${customer.find('option:selected').text()} - ${service.find('option:selected').text()}`,
                     date: `${date.val()}`,
-                    start: moment(`${date.val()} ${start.val()}`, 'DD/MM/YYYY h:mm:ss a').format('Y-MM-DD HH:mm:ss'),
-                    end: moment(`${date.val()} ${end.val()}`, 'DD/MM/YYYY h:mm:ss a').format('Y-MM-DD HH:mm:ss'),
+                    start: moment(`${date.val()} ${start.val()}`, 'DD/MM/YYYY h:mm:ss a').format('Y-MM-DD hh:mm:ss'),
+                    end: moment(`${date.val()} ${end.val()}`, 'DD/MM/YYYY h:mm:ss a').format('Y-MM-DD hh:mm:ss'),
                     // ROOM
                     resourceId: doctor.val().toString(),
                 };
@@ -512,7 +550,7 @@
                     mEnd = moment(end.val(), 'h:mm:ss a'),
                     diff = mEnd.diff(mStart, 'minutes', true);
                 if (time > 0 && diff < time)
-                    end.val((mStart.add(time, 'minute').format('HH:mm a') ));
+                    end.val((mStart.add(time, 'minute').format('hh:mm a') ));
             });
 
             service.select2({
@@ -525,8 +563,8 @@
                     service: service.val(),
                     time: time
                 };
-                if (time !== '')
-                    end.val(( moment(start.val(), 'h:mm:ss a').add(time, 'minute').format('HH:mm a') ));
+                if (time !== '' && start.val() !== '')
+                    end.val(( moment(start.val(), 'hh:mm a').add(time, 'minute').format('hh:mm a') ));
             }).on("select2:unselect", function () {
                 selServ = null;
             });

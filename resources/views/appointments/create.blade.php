@@ -38,6 +38,7 @@
                     id: "{{ $doctor->id }}",
                     title: "{{ $doctor->name }}",
                     daysOff: {!! json_encode($doctor->daysOff) !!} ,
+                    schedules: {!! json_encode($doctor->schedules) !!} ,
                 },
                 @endforeach
             ];

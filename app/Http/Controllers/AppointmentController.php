@@ -9,6 +9,8 @@ use App\Customer;
 use Carbon\Carbon;
 use App\Appointment;
 use App\DoctorsDaysOff;
+use App\DoctorsSchedule;
+use Carbon\CarbonPeriod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -43,11 +45,36 @@ class AppointmentController extends Controller
             ->get('users.*');
 
         foreach ($doctors as $index => $doctor) {
-            $dates = DoctorsDaysOff::where('user_id', $doctor->id)->pluck('day_off');
-            foreach ($dates as $i => $date) {
-                $dates[$i] = Carbon::parse($date)->setYear(Carbon::now()->year);
+            $dates = DoctorsDaysOff::where('user_id', $doctor->id)->get([
+                'day_off',
+                'end_day_off',
+            ])
+                ->where('day_off', '>', Carbon::now()->format('Y-m-d'));
+            $data = [];
+            foreach ($dates as $i => $item) {
+                $start = Carbon::parse($item->day_off)->setYear(Carbon::now()->year)->format('Y/m/d');
+                $end = $item->end_day_off ? Carbon::parse($item->end_day_off)->setYear(Carbon::now()->year)->format('Y/m/d') : null;
+                $data[] = $start;
+                if ($end) {
+                    $data[] = $end;
+                    $period = CarbonPeriod::create($item->day_off, $item->end_day_off);
+                    foreach ($period as $date) {
+                        $data[] = $date->setYear(Carbon::now()->year)->format('Y/m/d');
+                    }
+                }
             }
-            $doctors[$index]->daysOff = $dates;
+            $doctors[$index]->daysOff = $data;
+
+            $schedules = DoctorsSchedule::where('user_id', $doctor->id)
+                ->get();
+            $arrangedSchedules = [];
+            foreach ($schedules as $item) {
+                $arrangedSchedules[$item->day][]  = [
+                    'start_time' => Carbon::parse($item->start_time)->format('H:i'),
+                    'end_time' => Carbon::parse($item->end_time)->format('H:i'),
+                ];
+            }
+            $doctors[$index]->schedules = $arrangedSchedules;
         }
 
         $appointments = Appointment::join('users', 'users.id', '=', 'appointments.doctor_id')
@@ -107,11 +134,36 @@ class AppointmentController extends Controller
             ->get('users.*');
 
         foreach ($doctors as $index => $doctor) {
-            $dates = DoctorsDaysOff::where('user_id', $doctor->id)->pluck('day_off');
-            foreach ($dates as $i => $date) {
-                $dates[$i] = Carbon::parse($date)->setYear(Carbon::now()->year);
+            $dates = DoctorsDaysOff::where('user_id', $doctor->id)->get([
+                'day_off',
+                'end_day_off',
+            ])
+                ->where('day_off', '>', Carbon::now()->format('Y-m-d'));
+            $data = [];
+            foreach ($dates as $i => $item) {
+                $start = Carbon::parse($item->day_off)->setYear(Carbon::now()->year)->format('Y/m/d');
+                $end = $item->end_day_off ? Carbon::parse($item->end_day_off)->setYear(Carbon::now()->year)->format('Y/m/d') : null;
+                $data[] = $start;
+                if ($end) {
+                    $data[] = $end;
+                    $period = CarbonPeriod::create($item->day_off, $item->end_day_off);
+                    foreach ($period as $date) {
+                        $data[] = $date->setYear(Carbon::now()->year)->format('Y/m/d');
+                    }
+                }
             }
-            $doctors[$index]->daysOff = $dates;
+            $doctors[$index]->daysOff = $data;
+
+            $schedules = DoctorsSchedule::where('user_id', $doctor->id)
+                ->get();
+            $arrangedSchedules = [];
+            foreach ($schedules as $item) {
+                $arrangedSchedules[$item->day][]  = [
+                    'start_time' => Carbon::parse($item->start_time)->format('H:i'),
+                    'end_time' => Carbon::parse($item->end_time)->format('H:i'),
+                ];
+            }
+            $doctors[$index]->schedules = $arrangedSchedules;
         }
 
         $appointments = Appointment::join('users', 'users.id', '=', 'appointments.doctor_id')

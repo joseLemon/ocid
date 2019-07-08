@@ -16,7 +16,7 @@
     <script src={{ asset('js/bootstrap-datetimepicker.js') }}></script>
     <script>
         var events = [
-                    @foreach($appointments as $item)
+                @foreach($appointments as $item)
                 {
                     id: Number({{ $item->id }}),
                     title: '{{ $item->customer_name }} - {{ $item->service_name }}',
@@ -33,11 +33,12 @@
                 @endforeach
             ],
             doctors = [
-                    @foreach($doctors as $id => $doctor)
+                @foreach($doctors as $id => $doctor)
                 {
                     id: "{{ $doctor->id }}",
                     title: "{{ $doctor->name }}",
                     daysOff: {!! json_encode($doctor->daysOff) !!} ,
+                    schedules: {!! json_encode($doctor->schedules) !!} ,
                 },
                 @endforeach
             ];
