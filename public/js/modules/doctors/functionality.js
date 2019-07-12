@@ -50,9 +50,9 @@ let year = date.getFullYear(),
             initCalendars();
         }
     },
-    getMonthEvents = (month) => {
+    getMonthEvents = (month, refresh = false) => {
         let events = [];
-        if ($('#doctor_id').length > 0) {
+        if ($('#doctor_id').length > 0 && !refresh) {
             let monthData = all[month + 1];
             if (monthData)
                 monthData.forEach(function (item, i) {
@@ -155,10 +155,42 @@ let year = date.getFullYear(),
                 showNonCurrentDates: false,
                 fixedWeekCount: false,
                 unselectAuto: false,
+                customButtons: {
+                    reload: {
+                        text: '↻',
+                        click: function() {
+                            $.confirm({
+                                title: 'Servicio',
+                                content: 'Se modificaran las fechas de este mes para establecer las fechas por defecto.',
+                                buttons: {
+                                    confirm: {
+                                        text: 'Confirmar',
+                                        btnClass: 'btn-blue',
+                                        action: function () {
+                                            calendar.getEvents().forEach(function (item, i) {
+                                                item.remove();
+                                            });
+                                            getMonthEvents(i, true).forEach(function (item, i) {
+                                                calendar.addEvent(item);
+                                            });
+                                        }
+                                    },
+                                    cancel: {
+                                        text: 'Cancelar',
+                                        action: function () {
+                                            //close
+                                        }
+                                    },
+                                },
+                                columnClass: 'col-md-6 col-sm-12'
+                            });
+                        }
+                    }
+                },
                 header: {
-                    left: '',
-                    center: 'title',
-                    right: '',
+                    left: 'title',
+                    center: '',
+                    right: 'reload',
                 },
                 titleFormat: {
                     month: 'long',
@@ -224,5 +256,36 @@ $('.btn-add-schedule').click(function () {
             valid = true;
             form.submit();
         }
-    })
+    });
+
+    $('#reloadAll').click(function () {
+        $.confirm({
+            title: 'Servicio',
+            content: 'Se modificaran las fechas de todos los meses para establecer las fechas por defecto.',
+            buttons: {
+                confirm: {
+                    text: 'Confirmar',
+                    btnClass: 'btn-blue',
+                    action: function () {
+                        for (let i = 0; i < 12; i++) {
+                            let calendar = calendars[i];
+                            calendar.getEvents().forEach(function (item, i) {
+                                item.remove();
+                            });
+                            getMonthEvents(i, true).forEach(function (item, i) {
+                                calendar.addEvent(item);
+                            });
+                        }
+                    }
+                },
+                cancel: {
+                    text: 'Cancelar',
+                    action: function () {
+                        //close
+                    }
+                },
+            },
+            columnClass: 'col-md-6 col-sm-12'
+        });
+    });
 })();

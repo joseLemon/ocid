@@ -34,6 +34,10 @@ table tbody tr td {
   cursor: pointer;
 }
 
+.fc-icon-fa {
+  font-family: FontAwesome;
+}
+
 .badge-pill {
   margin-top: -1px;
   position: relative;

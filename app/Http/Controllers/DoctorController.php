@@ -47,30 +47,11 @@ class DoctorController extends Controller
      */
     protected function validator(array $data)
     {
-        /*$beginHour = Carbon::parse($data['mon-time-start']);
-        $endHour = Carbon::parse($data['mon-time-end']);
-        if($beginHour->addMinute()->gt($endHour)){
-            return false;
-        }*/
-
-
         return Validator::make($data, [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['string', 'email', 'max:255', 'unique:users', 'nullable'],
             'password' => ['sometimes', 'required_with:email', 'string', 'min:8', 'confirmed', 'nullable'],
             'branch' => ['required', 'exists:branches,id'],
-            /*'mon-time-start' => ['required', 'date_format:H:i'],
-            'mon-time-end' => ['required', 'date_format:H:i'],
-            'tus-time-start' => ['required', 'date_format:H:i'],
-            'tus-time-end' => ['required', 'date_format:H:i'],
-            'wed-time-start' => ['required', 'date_format:H:i'],
-            'wed-time-end' => ['required', 'date_format:H:i'],
-            'thu-time-start' => ['required', 'date_format:H:i'],
-            'thu-time-end' => ['required', 'date_format:H:i'],
-            'fri-time-start' => ['required', 'date_format:H:i'],
-            'fri-time-end' => ['required', 'date_format:H:i'],
-            'sat-time-start' => ['required', 'date_format:H:i'],
-            'sat-time-end' => ['required', 'date_format:H:i'],*/
         ], [], [
             'name' => 'nombre',
             'email' => 'correo electrónico',
@@ -89,13 +70,14 @@ class DoctorController extends Controller
     {
         return Validator::make($data, [
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $id],
-            'password' => ['nullable', 'string', 'min:8', 'confirmed'],
-
+            'email' => ['string', 'email', 'max:255', 'unique:users,email,' . $id, 'nullable'],
+            'password' => ['sometimes', 'string', 'min:8', 'confirmed', 'nullable'],
+            'branch' => ['required', 'exists:branches,id'],
         ], [], [
             'name' => 'nombre',
             'email' => 'correo electrónico',
             'password' => 'contraseña',
+            'branch' => 'sucursal',
         ]);
     }
 
@@ -235,7 +217,7 @@ class DoctorController extends Controller
     {
         $data = $request->all();
 
-        $this->validator($request->all(), $id)->validate();
+        $this->updateValidator($request->all(), $id)->validate();
 
         DB::transaction(function () use ($data, $id) {
             $user = User::find($id);

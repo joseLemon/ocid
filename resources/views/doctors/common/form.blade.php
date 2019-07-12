@@ -87,6 +87,10 @@
 
     <div class="tab-pane fade" id="calendars" role="tabpanel" aria-labelledby="profile-tab">
 
+        <div class="mt-2 text-right">
+            <label>Recargar todas las fechas</label>&nbsp;&nbsp;&nbsp;<button type="button" class="btn btn-primary" id="reloadAll">↻</button>
+        </div>
+
         <div class="text-center" id="calendar-spinner"><span class="spinner-border" role="status"></span></div>
 
         <div class="row">
