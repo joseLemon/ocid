@@ -88,7 +88,7 @@
     <div class="tab-pane fade" id="calendars" role="tabpanel" aria-labelledby="profile-tab">
 
         <div class="mt-2 text-right">
-            <label>Recargar todas las fechas</label>&nbsp;&nbsp;&nbsp;<button type="button" class="btn btn-primary" id="reloadAll">↻</button>
+            <label>Recargar todos los días inhábiles</label>&nbsp;&nbsp;&nbsp;<button type="button" class="btn btn-primary" id="reloadAll">↻</button>
         </div>
 
         <div class="text-center" id="calendar-spinner"><span class="spinner-border" role="status"></span></div>
@@ -139,7 +139,7 @@
 
         <div class="row no-margin">
 
-            <div class="col-12">
+            <div class="col-12 schedule-row">
                 <h3>
                     Lunes
                 </h3>
@@ -211,7 +211,7 @@
 
             <div class="w-100 spacing"></div>
 
-            <div class="col-12">
+            <div class="col-12 schedule-row">
                 <h3>
                     Martes
                 </h3>
@@ -283,7 +283,7 @@
 
             <div class="w-100 spacing"></div>
 
-            <div class="col-12">
+            <div class="col-12 schedule-row">
                 <h3>
                     Miercoles
                 </h3>
@@ -355,7 +355,7 @@
 
             <div class="w-100 spacing"></div>
 
-            <div class="col-12">
+            <div class="col-12 schedule-row">
                 <h3>
                     Jueves
                 </h3>
@@ -427,7 +427,7 @@
 
             <div class="w-100 spacing"></div>
 
-            <div class="col-12">
+            <div class="col-12 schedule-row">
                 <h3>
                     Viernes
                 </h3>
@@ -499,7 +499,7 @@
 
             <div class="w-100 spacing"></div>
 
-            <div class="col-12">
+            <div class="col-12 schedule-row">
                 <h3>
                     Sabado
                 </h3>
@@ -578,4 +578,28 @@
     <button type="submit" class="btn btn-primary btn-block">
         {{ __('Guardar') }}
     </button>
+</div>
+
+<div class="modal fade" role="dialog" id="event-modal">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Agregar cita</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="title">Título</label>
+                    <input type="text" name="title" id="title" class="form-control" placeholder="Título">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="update-event">Actualizar</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-danger" id="delete-event">Borrar</button>
+            </div>
+        </div>
+    </div>
 </div>

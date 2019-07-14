@@ -6,7 +6,7 @@
 @section('content')
     <div class="card">
         <div class="card-body">
-            <form  method="POST" action="{{ route('doctor.update',[$user->id]) }}" id="doctorForm">
+            <form  method="POST" action="{{ auth()->user()->hasRole('doctor') ? route('doctor.updateProfile',[$user->id]) : route('doctor.update',[$user->id]) }}" id="doctorForm">
                 @csrf
                 @include('doctors.common.form')
             </form>

@@ -309,7 +309,7 @@ class DoctorController extends Controller
             }
             DoctorsDaysOff::insert($doctorDaysOff);
         });
-        return redirect('/doctors');
+        return auth()->user()->hasRole('doctor') ? redirect('/') : redirect('/doctors');
     }
 
     /**
