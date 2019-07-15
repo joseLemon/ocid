@@ -58,6 +58,14 @@
                             </ul>
                         </li>
                     @endcanany
+                    @if(auth()->user()->hasRole('doctor'))
+                        <li class="side-nav-item">
+                            <a class="btn side-nav-link" href="/doctor/profile/{{ auth()->user()->id }}">
+                                <i class="fas fa-user-md"></i>
+                                <span> Mi cuenta </span>
+                            </a>
+                        </li>
+                    @endif
                     @canany(['read-users', 'create-users'])
                         <li class="side-nav-item">
                             <button class="btn side-nav-link" aria-expanded="false">

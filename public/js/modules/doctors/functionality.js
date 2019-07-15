@@ -1,10 +1,12 @@
-let date = new Date();
+let date = new Date(),
+    selEvent = null;
 // Primero del mes
 date.setDate(1);
 let year = date.getFullYear(),
     calendars = [],
     events = [],
     all = [],
+    title = $('#title'),
     removeEventById = (calendar, id) => {
         let event = calendar.getEventById(id);
         event.remove();
@@ -50,17 +52,21 @@ let year = date.getFullYear(),
             initCalendars();
         }
     },
-    getMonthEvents = (month) => {
+    getMonthEvents = (month, refresh = false) => {
         let events = [];
-        if ($('#doctor_id').length > 0) {
+        if ($('#doctor_id').length > 0 && !refresh) {
             let monthData = all[month + 1];
             if (monthData)
                 monthData.forEach(function (item, i) {
-                    events.push({
-                        start: `${year}-${item.date}`,
-                        end: `${year}-${item.end_date}`,
+                    let ev = {
+                        id: generateUUID(),
+                        start: moment(`${year}-${item.date}`).format('YYYY-MM-DD'),
                         title: item.title ? item.title : 'Día libre',
-                    });
+                        allDay: true,
+                    };
+                    if (item.end_date)
+                        ev.end = moment(`${year}-${item.end_date}`).add(1, 'days').format('YYYY-MM-DD');
+                    events.push(ev);
                 });
         }
         else
@@ -149,16 +155,53 @@ let year = date.getFullYear(),
                     }]);
                     calendar.unselect();
                 },
-                eventClick: function(obj) {
+                /*eventClick: function(obj) {
                     removeEventById(calendar, obj.event.id);
+                },*/
+                eventClick: function (info) {
+                    selEvent = info.event;
+                    title.val(info.event.title);
+                    $('#event-modal').modal('show');
                 },
                 showNonCurrentDates: false,
                 fixedWeekCount: false,
                 unselectAuto: false,
+                customButtons: {
+                    reload: {
+                        text: '↻',
+                        click: function() {
+                            $.confirm({
+                                title: 'Servicio',
+                                content: 'Se modificaran las fechas de este mes para establecer las fechas por defecto.',
+                                buttons: {
+                                    confirm: {
+                                        text: 'Confirmar',
+                                        btnClass: 'btn-blue',
+                                        action: function () {
+                                            calendar.getEvents().forEach(function (item, i) {
+                                                item.remove();
+                                            });
+                                            getMonthEvents(i, true).forEach(function (item, i) {
+                                                calendar.addEvent(item);
+                                            });
+                                        }
+                                    },
+                                    cancel: {
+                                        text: 'Cancelar',
+                                        action: function () {
+                                            //close
+                                        }
+                                    },
+                                },
+                                columnClass: 'col-md-6 col-sm-12'
+                            });
+                        }
+                    }
+                },
                 header: {
-                    left: '',
-                    center: 'title',
-                    right: '',
+                    left: 'title',
+                    center: '',
+                    right: 'reload',
                 },
                 titleFormat: {
                     month: 'long',
@@ -203,7 +246,47 @@ $('.btn-add-schedule').click(function () {
         let form = $(this);
         if (!valid) {
             e.preventDefault();
-                    let json = [];
+            let json = [],
+                schedules = $('.schedule-row'),
+                schVal = true;
+            schedules.each(function () {
+                let input = $(this).find('input'),
+                    start = moment($(input[0]).val(), 'hh:mm a'),
+                    end = moment($(input[1]).val(), 'hh:mm a');
+                console.log(start, end);
+
+                if (start.isAfter(end) || start.isSame(end)) {
+                    schVal = false;
+                    $(input[0]).addClass('is-invalid');
+                    $(input[1]).addClass('is-invalid');
+                } else {
+                    $(input[0]).removeClass('is-invalid');
+                    $(input[1]).removeClass('is-invalid');
+                }
+
+                let extra = $(input[2]);
+                if (!extra.prop('disabled')) {
+                    start = moment($(input[2]).val(), 'hh:mm a');
+                    end = moment($(input[3]).val(), 'hh:mm a');
+
+                    if (start.isAfter(end) || start.isSame(end)) {
+                        schVal = false;
+                        $(input[2]).addClass('is-invalid');
+                        $(input[3]).addClass('is-invalid');
+                    } else {
+                        $(input[2]).removeClass('is-invalid');
+                        $(input[3]).removeClass('is-invalid');
+                    }
+                }
+            });
+            if (!schVal) {
+                $.alert({
+                    title: 'Error',
+                    type: 'red',
+                    content: 'Asegurate que los horarios sean correctos para continuar',
+                });
+                return false;
+            }
             calendars.forEach(function (item, i) {
                 let events = item.getEvents();
                 events.forEach(function (ev) {
@@ -224,5 +307,64 @@ $('.btn-add-schedule').click(function () {
             valid = true;
             form.submit();
         }
-    })
+    });
+
+    $('#reloadAll').click(function () {
+        $.confirm({
+            title: 'Servicio',
+            content: 'Se modificaran las fechas de todos los meses para establecer las fechas por defecto.',
+            buttons: {
+                confirm: {
+                    text: 'Confirmar',
+                    btnClass: 'btn-blue',
+                    action: function () {
+                        for (let i = 0; i < 12; i++) {
+                            let calendar = calendars[i];
+                            calendar.getEvents().forEach(function (item, i) {
+                                item.remove();
+                            });
+                            getMonthEvents(i, true).forEach(function (item, i) {
+                                calendar.addEvent(item);
+                            });
+                        }
+                    }
+                },
+                cancel: {
+                    text: 'Cancelar',
+                    action: function () {
+                        //close
+                    }
+                },
+            },
+            columnClass: 'col-md-6 col-sm-12'
+        });
+    });
+
+    $('#update-event').click(function () {
+        let month = Number(moment(selEvent.start).format('M')) - 1,
+            calendar = calendars[month],
+            currEv = calendar.getEventById(selEvent.id),
+            event = {
+                title: title.val(),
+                start: selEvent.start,
+                end: selEvent.end,
+                allDay: true,
+            };
+        currEv.remove();
+        calendar.addEvent(event);
+        $('#event-modal').modal('hide');
+    });
+
+    $('#delete-event').click(function () {
+        let month = Number(moment(selEvent.start).format('M')) - 1,
+            calendar = calendars[month],
+            currEv = calendar.getEventById(selEvent.id);
+        currEv.remove();
+        $('#event-modal').modal('hide');
+    });
+
+    $('#event-modal').on('hide.bs.modal', function () {
+        selEvent = null;
+        title.val('');
+    });
 })();
