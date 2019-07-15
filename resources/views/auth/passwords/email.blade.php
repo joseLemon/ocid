@@ -20,7 +20,7 @@
                 @csrf
 
                 <div class="form-group">
-                    <label for="email" class="col-form-label text-md-right">{{ __('E-Mail Address') }}</label>
+                    <label for="email" class="col-form-label text-md-right icon"><i class="fas fa-envelope"></i></label>
 
                     <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" required autocomplete="email" autofocus>
 
