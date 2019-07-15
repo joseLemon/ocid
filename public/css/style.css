@@ -47,6 +47,10 @@ table tbody tr td {
   font-family: FontAwesome;
 }
 
+.fc-unthemed td.fc-today {
+    background: rgba(160, 203, 221, 0.1)!important;
+}
+
 .badge-pill {
   margin-top: -1px;
   position: relative;

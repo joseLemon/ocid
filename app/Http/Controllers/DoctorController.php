@@ -224,7 +224,7 @@ class DoctorController extends Controller
             $user->name = $data['name'];
             $user->email = $data['email'];
             if ($data['password'])
-                $user->password = $data['password'];
+                $user->password = Hash::make($data['password']);
             $user->save();
             $user->roles()->sync(3);
             $user->branches()->sync($data['branch']);
