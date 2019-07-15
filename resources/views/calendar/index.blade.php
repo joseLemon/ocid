@@ -108,7 +108,7 @@
                                 <label for="status">Estatus</label>
                                 <select class="form-control" id="status">
                                     <option value="1">A tiempo</option>
-                                    <option value="2">En curso</option>
+                                    <option value="2">Visto</option>
                                     <option value="3">Retrasado</option>
                                     <option value="4">Cancelado</option>
                                 </select>

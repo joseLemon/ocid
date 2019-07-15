@@ -43,7 +43,7 @@
                         default:
                             return 'A tiempo';
                         case 'active':
-                            return 'En curso';
+                            return 'Visto';
                         case 'delayed':
                             return 'Retrasado';
                         case 'cancelled':
