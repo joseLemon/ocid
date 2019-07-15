@@ -14,10 +14,10 @@
             <form method="POST" action="{{ route('login') }}">
                 @csrf
 
-                <div class="form-group">
-                    <label for="email" class="col-form-label text-md-right">{{ __('E-Mail Address') }}</label>
-
-                    <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" autocomplete="email" autofocus>
+                <div class="form-group d-inline-block">
+                    <!--  <label for="email" class="col-form-label text-md-right">{{ __('E-Mail Address') }}</label>  -->
+                        <label for="email" class="col-form-label text-md-right icon"><i class="fas fa-user"></i></label>
+                    <input id="email" type="email" placeholder="Correo electrónico" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" autocomplete="email" autofocus>
 
                     @error('email')
                     <span class="invalid-feedback" role="alert">
@@ -26,10 +26,10 @@
                     @enderror
                 </div>
 
-                <div class="form-group">
-                    <label for="password" class="col-form-label text-md-right">{{ __('Contraseña') }}</label>
-
-                    <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" autocomplete="current-password">
+                <div class="form-group d-inline-block">
+                    <!--  <label for="password" class="col-form-label text-md-right">{{ __('Contraseña') }}</label>  -->
+                        <label for="password" class="col-form-label text-md-right icon"><i class="fas fa-lock"></i></label>
+                    <input id="password" type="password" placeholder="Contraseña" class="form-control @error('password') is-invalid @enderror" name="password" autocomplete="current-password">
 
                     @error('password')
                     <span class="invalid-feedback" role="alert">
@@ -38,7 +38,7 @@
                     @enderror
                 </div>
 
-                <div class="form-group mt-4">
+                <div class="form-group mt-4 d-inline-block">
                     <button type="submit" class="btn btn-primary btn-block">
                         {{ __('Login') }}
                     </button>

@@ -29,6 +29,7 @@
     <div class="row">
         <div class="side-menu col-auto">
             <div class="fixed-top">
+                <img src="../img/logo_white.png" alt="" class="nav-img">
                 <ul>
                     <li class="side-nav-item">
                         <a href="/" class="btn side-nav-link">
@@ -198,6 +199,17 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/locale/es.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.7/js/select2.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.3.2/jquery-confirm.min.js"></script>
+<script>
+    $(".side-menu .fixed-top").mouseenter(function(){
+        $(".side-menu .fixed-top").addClass("active");
+    });
+    $(".side-menu .fixed-top").mouseleave(function(){
+        $(".side-menu .fixed-top").removeClass("active");
+        $(".side-menu .side-nav-second-level").removeClass("show");
+        $(".side-menu .side-nav-link").attr('aria-expanded', "false");
+        $(".side-menu .side-nav-second-level").attr('aria-expanded', "false");
+    });
+</script>
 <script>
     let generateUUID = () => {
             return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
