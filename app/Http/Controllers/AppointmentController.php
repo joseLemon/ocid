@@ -342,6 +342,9 @@ class AppointmentController extends Controller
             })
             ->orderBy($column, $dir);
 
+        if (auth()->user()->hasRole('doctor'))
+            $query->where('status', 'active');
+
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where("users.name", "LIKE", "%$search%");

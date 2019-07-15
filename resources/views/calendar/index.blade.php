@@ -207,11 +207,13 @@
                             initDoctorTime(true);
                             $('#event-modal').modal('show');
                         },
+                        @if(!auth()->user()->hasRole('doctor'))
                         dateClick: function (info) {
                             date.val(moment(info.dateStr, 'YYYY-MM-DD').format('DD/MM/YYYY'));
                             $.merge(start, end).val(moment(info.date).format('hh:mm a'));
                             $('#event-modal').modal('show');
                         },
+                        @endif
                         windowResize: function(view) {
                             let height = $(window).height() - 300;
                             height = height > 600 ? height : 600;

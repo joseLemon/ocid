@@ -158,7 +158,7 @@ class HomeController extends Controller
             $doctors[$index]->schedules = $arrangedSchedules;
         }
 
-        $appointments = Appointment::join('users', 'users.id', '=', 'appointments.doctor_id')
+        $query = Appointment::join('users', 'users.id', '=', 'appointments.doctor_id')
             ->join('services', 'services.id', '=', 'appointments.service_id')
             ->join('branches_users', 'branches_users.user_id', 'users.id')
             ->where(function ($q) use ($doctor_f, $branch_f) {
@@ -170,7 +170,7 @@ class HomeController extends Controller
                 if ($branch_f)
                     $q->where('branches_users.branch_id', $branch_f);
             })
-            ->get([
+            ->select([
                 'appointments.id',
                 'appointments.doctor_id',
                 'appointments.service_id',
@@ -181,6 +181,11 @@ class HomeController extends Controller
                 'appointments.status',
                 'services.name AS service_name',
             ]);
+
+        if (auth()->user()->hasRole('doctor'))
+            $query->where('status', 'active');
+
+        $appointments = $query->get();
 
         $customers = [];
         foreach ($appointments as $index => $item) {
