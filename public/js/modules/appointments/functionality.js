@@ -333,6 +333,10 @@
                 return false;
             }
 
+            selDoc = doctors.find(function (obj) {
+                return Number(obj.id) === Number(doctor.val());
+            });
+
             let schCheck = checkSchedules();
             if (schCheck.success) {
                 $.alert(`El periodo de tiempo elegido no se encuentra disponible dentro de los horarios del médico.<br><br>${schCheck.schedule}`);

@@ -194,6 +194,9 @@
                             let event = events.find(function (obj) {
                                 return Number(obj.id) === Number(info.event.id);
                             });
+                            selDoc = doctors.find(function (obj) {
+                                return Number(obj.id) === Number(event.doctor_id);
+                            });
                             appId.val(info.event.id);
                             date.val(event.date);
                             start.val(moment(event.start).format('hh:mm a'));
