@@ -229,85 +229,86 @@ class DoctorController extends Controller
             $user->roles()->sync(3);
             $user->branches()->sync($data['branch']);
 
-            DoctorsSchedule::where('user_id', $id)
-                ->delete();
-            DoctorsDaysOff::where('user_id', $id)
-                ->delete();
+            if(!auth()->user()->hasRole('doctor')) {
+                DoctorsSchedule::where('user_id', $id)
+                    ->delete();
+                DoctorsDaysOff::where('user_id', $id)
+                    ->delete();
+                $dataSchedule = [];
+                if ($data['mon-time-start'])
+                    foreach ($data['mon-time-start'] as $index => $start)
+                        $dataSchedule[] = [
+                            'user_id' => $user->id,
+                            'day' => 1,
+                            'start_time' => $start,
+                            'end_time' => $data['mon-time-end'][$index],
+                            'main' => $index == 0 ? 1 : null,
+                        ];
 
-            $dataSchedule = [];
-            if ($data['mon-time-start'])
-                foreach ($data['mon-time-start'] as $index => $start)
-                    $dataSchedule[] = [
+                if ($data['tue-time-start'])
+                    foreach ($data['tue-time-start'] as $index => $start)
+                        $dataSchedule[] = [
+                            'user_id' => $user->id,
+                            'day' => 2,
+                            'start_time' => $start,
+                            'end_time' => $data['tue-time-end'][$index],
+                            'main' => $index == 0 ? 1 : null,
+                        ];
+
+                if ($data['wed-time-start'])
+                    foreach ($data['wed-time-start'] as $index => $start)
+                        $dataSchedule[] = [
+                            'user_id' => $user->id,
+                            'day' => 3,
+                            'start_time' => $start,
+                            'end_time' => $data['wed-time-end'][$index],
+                            'main' => $index == 0 ? 1 : null,
+                        ];
+
+                if ($data['thu-time-start'])
+                    foreach ($data['thu-time-start'] as $index => $start)
+                        $dataSchedule[] = [
+                            'user_id' => $user->id,
+                            'day' => 4,
+                            'start_time' => $start,
+                            'end_time' => $data['thu-time-end'][$index],
+                            'main' => $index == 0 ? 1 : null,
+                        ];
+
+                if ($data['fri-time-start'])
+                    foreach ($data['fri-time-start'] as $index => $start)
+                        $dataSchedule[] = [
+                            'user_id' => $user->id,
+                            'day' => 5,
+                            'start_time' => $start,
+                            'end_time' => $data['fri-time-end'][$index],
+                            'main' => $index == 0 ? 1 : null,
+                        ];
+
+                if ($data['sat-time-start'])
+                    foreach ($data['sat-time-start'] as $index => $start)
+                        $dataSchedule[] = [
+                            'user_id' => $user->id,
+                            'day' => 6,
+                            'start_time' => $start,
+                            'end_time' => $data['sat-time-end'][$index],
+                            'main' => $index == 0 ? 1 : null,
+                        ];
+
+                DoctorsSchedule::insert($dataSchedule);
+
+                $doctorDaysOff = [];
+                $off = json_decode(urldecode($data['days_off']));
+                foreach ($off as $item) {
+                    $doctorDaysOff[] = [
                         'user_id' => $user->id,
-                        'day' => 1,
-                        'start_time' => $start,
-                        'end_time' => $data['mon-time-end'][$index],
-                        'main' => $index == 0 ? 1 : null,
+                        'day_off' => Carbon::parse($item->date)->format('Y-m-d'),
+                        'end_day_off' => $item->date_end ? Carbon::parse($item->date_end)->format('Y-m-d') : null,
+                        'title' => $item->title,
                     ];
-
-            if ($data['tue-time-start'])
-                foreach ($data['tue-time-start'] as $index => $start)
-                    $dataSchedule[] = [
-                        'user_id' => $user->id,
-                        'day' => 2,
-                        'start_time' => $start,
-                        'end_time' => $data['tue-time-end'][$index],
-                        'main' => $index == 0 ? 1 : null,
-                    ];
-
-            if ($data['wed-time-start'])
-                foreach ($data['wed-time-start'] as $index => $start)
-                    $dataSchedule[] = [
-                        'user_id' => $user->id,
-                        'day' => 3,
-                        'start_time' => $start,
-                        'end_time' => $data['wed-time-end'][$index],
-                        'main' => $index == 0 ? 1 : null,
-                    ];
-
-            if ($data['thu-time-start'])
-                foreach ($data['thu-time-start'] as $index => $start)
-                    $dataSchedule[] = [
-                        'user_id' => $user->id,
-                        'day' => 4,
-                        'start_time' => $start,
-                        'end_time' => $data['thu-time-end'][$index],
-                        'main' => $index == 0 ? 1 : null,
-                    ];
-
-            if ($data['fri-time-start'])
-                foreach ($data['fri-time-start'] as $index => $start)
-                    $dataSchedule[] = [
-                        'user_id' => $user->id,
-                        'day' => 5,
-                        'start_time' => $start,
-                        'end_time' => $data['fri-time-end'][$index],
-                        'main' => $index == 0 ? 1 : null,
-                    ];
-
-            if ($data['sat-time-start'])
-                foreach ($data['sat-time-start'] as $index => $start)
-                    $dataSchedule[] = [
-                        'user_id' => $user->id,
-                        'day' => 6,
-                        'start_time' => $start,
-                        'end_time' => $data['sat-time-end'][$index],
-                        'main' => $index == 0 ? 1 : null,
-                    ];
-
-            DoctorsSchedule::insert($dataSchedule);
-
-            $doctorDaysOff = [];
-            $off = json_decode(urldecode($data['days_off']));
-            foreach ($off as $item) {
-                $doctorDaysOff[] = [
-                    'user_id' => $user->id,
-                    'day_off' => Carbon::parse($item->date)->format('Y-m-d'),
-                    'end_day_off' => $item->date_end ? Carbon::parse($item->date_end)->format('Y-m-d') : null,
-                    'title' => $item->title,
-                ];
+                }
+                DoctorsDaysOff::insert($doctorDaysOff);
             }
-            DoctorsDaysOff::insert($doctorDaysOff);
         });
         return auth()->user()->hasRole('doctor') ? redirect('/') : redirect('/doctors');
     }

@@ -92,7 +92,7 @@
         #app input[type="email"],
         #app input[type="password"] {
             font-size: 16px;
-            color: #8d8f87;
+            color: rgba(0,0,0,.7);
             /*width: 325px;*/
             margin-bottom: 5px;
             padding-left: 45px;
@@ -133,7 +133,18 @@
         #app .form-check-label {
             color: #fff;
         }
-
+        ::-webkit-input-placeholder { /* Chrome/Opera/Safari */
+          color: rgba(0,0,0,.5)!important;
+        }
+        ::-moz-placeholder { /* Firefox 19+ */
+          color: rgba(0,0,0,.5)!important;
+        }
+        :-ms-input-placeholder { /* IE 10+ */
+          color: rgba(0,0,0,.5)!important;
+        }
+        :-moz-placeholder { /* Firefox 18- */
+          color: rgba(0,0,0,.5)!important;
+        }
     </style>
 </head>
 <body>

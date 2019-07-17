@@ -2,12 +2,14 @@
     <li class="nav-item">
         <a class="nav-link active" id="data-tab" data-toggle="tab" href="#form" role="tab" aria-controls="form" aria-selected="true">Informacion Personal</a>
     </li>
+    @if(!auth()->user()->hasRole('doctor'))
     <li class="nav-item">
         <a class="nav-link" id="calendar-tab" data-toggle="tab" href="#calendars" role="tab" aria-controls="calendars" aria-selected="false">Dias Libres</a>
     </li>
     <li class="nav-item">
         <a class="nav-link" id="schedule-tab" data-toggle="tab" href="#schedule" role="tab" aria-controls="schedule" aria-selected="false">Horario</a>
     </li>
+    @endif
 </ul>
 
 <div class="tab-content">
@@ -85,6 +87,7 @@
         </div>
     </div>
 
+    @if(!auth()->user()->hasRole('doctor'))
     <div class="tab-pane fade" id="calendars" role="tabpanel" aria-labelledby="profile-tab">
 
         <div class="mt-2 text-right">
@@ -134,7 +137,6 @@
 
     </div>
 
-
     <div class="tab-pane fade" id="schedule" role="tabpanel" aria-labelledby="profile-tab">
 
         <div class="row no-margin">
@@ -147,7 +149,7 @@
 
                     <div class="col-4">
                         <div class="input-group clockpicker">
-                            <input type="text" name="mon-time-start[]" id="mon-time-start" class="form-control" value="{{ $arrangedSchedules[1][0]['start_time'] ?? null }}">
+                            <input type="text" name="mon-time-start[]" id="mon-time-start" class="form-control" value="{{ $arrangedSchedules[1][0]['start_time'] ?? '9:00' }}">
                             <div class="input-group-append">
                                 <span class="input-group-text">
                                     <i class="far fa-clock"></i>
@@ -162,7 +164,7 @@
                     </div>
                     <div class="col-4">
                         <div class="input-group clockpicker">
-                            <input type="text" name="mon-time-end[]" id="mon-time-end" class="form-control" value="{{ $arrangedSchedules[1][0]['end_time'] ?? null }}">
+                            <input type="text" name="mon-time-end[]" id="mon-time-end" class="form-control" value="{{ $arrangedSchedules[1]['end_time'] ?? '14:00' }}">
                             <div class="input-group-append">
                                 <span class="input-group-text">
                                     <i class="far fa-clock"></i>
@@ -219,7 +221,7 @@
 
                     <div class="col-4">
                         <div class="input-group clockpicker">
-                            <input type="text" name="tue-time-start[]" id="tue-time-start" class="form-control" value="{{ $arrangedSchedules[2][0]['start_time'] ?? null }}">
+                            <input type="text" name="tue-time-start[]" id="tue-time-start" class="form-control" value="{{ $arrangedSchedules[2]['start_time'] ?? '9:00' }}">
                             <div class="input-group-append">
                                 <span class="input-group-text">
                                     <i class="far fa-clock"></i>
@@ -234,7 +236,7 @@
                     </div>
                     <div class="col-4">
                         <div class="input-group clockpicker">
-                            <input type="text" name="tue-time-end[]" id="tue-time-end" class="form-control" value="{{ $arrangedSchedules[2][0]['end_time'] ?? null }}">
+                            <input type="text" name="tue-time-end[]" id="tue-time-end" class="form-control" value="{{ $arrangedSchedules[2]['end_time'] ?? '14:00' }}">
                             <div class="input-group-append">
                                 <span class="input-group-text">
                                     <i class="far fa-clock"></i>
@@ -291,7 +293,7 @@
 
                     <div class="col-4">
                         <div class="input-group clockpicker">
-                            <input type="text" name="wed-time-start[]" id="wed-time-start" class="form-control" value="{{ $arrangedSchedules[3][0]['start_time'] ?? null }}">
+                            <input type="text" name="wed-time-start[]" id="wed-time-start" class="form-control" value="{{ $arrangedSchedules[3]['start_time'] ?? '9:00' }}">
                             <div class="input-group-append">
                                 <span class="input-group-text">
                                     <i class="far fa-clock"></i>
@@ -306,7 +308,7 @@
                     </div>
                     <div class="col-4">
                         <div class="input-group clockpicker">
-                            <input type="text" name="wed-time-end[]" id="wed-time-end" class="form-control" value="{{ $arrangedSchedules[3][0]['end_time'] ?? null }}">
+                            <input type="text" name="wed-time-end[]" id="wed-time-end" class="form-control" value="{{ $arrangedSchedules[3]['end_time'] ?? '14:00' }}">
                             <div class="input-group-append">
                                 <span class="input-group-text">
                                     <i class="far fa-clock"></i>
@@ -363,7 +365,7 @@
 
                     <div class="col-4">
                         <div class="input-group clockpicker">
-                            <input type="text" name="thu-time-start[]" id="thu-time-start" class="form-control" value="{{ $arrangedSchedules[4][0]['start_time'] ?? null }}">
+                            <input type="text" name="thu-time-start[]" id="thu-time-start" class="form-control" value="{{ $arrangedSchedules[4]['start_time'] ?? '9:00' }}">
                             <div class="input-group-append">
                                 <span class="input-group-text">
                                     <i class="far fa-clock"></i>
@@ -378,7 +380,7 @@
                     </div>
                     <div class="col-4">
                         <div class="input-group clockpicker">
-                            <input type="text" name="thu-time-end[]" id="thu-time-end" class="form-control" value="{{ $arrangedSchedules[4][0]['end_time'] ?? null }}">
+                            <input type="text" name="thu-time-end[]" id="thu-time-end" class="form-control" value="{{ $arrangedSchedules[4]['end_time'] ?? '14:00' }}">
                             <div class="input-group-append">
                                 <span class="input-group-text">
                                     <i class="far fa-clock"></i>
@@ -435,7 +437,7 @@
 
                     <div class="col-4">
                         <div class="input-group clockpicker">
-                            <input type="text" name="fri-time-start[]" id="fri-time-start" class="form-control" value="{{ $arrangedSchedules[5][0]['start_time'] ?? null }}">
+                            <input type="text" name="fri-time-start[]" id="fri-time-start" class="form-control" value="{{ $arrangedSchedules[5]['start_time'] ?? '9:00' }}">
                             <div class="input-group-append">
                                 <span class="input-group-text">
                                     <i class="far fa-clock"></i>
@@ -450,7 +452,7 @@
                     </div>
                     <div class="col-4">
                         <div class="input-group clockpicker">
-                            <input type="text" name="fri-time-end[]" id="fri-time-end" class="form-control" value="{{ $arrangedSchedules[5][0]['end_time'] ?? null }}">
+                            <input type="text" name="fri-time-end[]" id="fri-time-end" class="form-control" value="{{ $arrangedSchedules[5]['end_time'] ?? '14:00' }}">
                             <div class="input-group-append">
                                 <span class="input-group-text">
                                     <i class="far fa-clock"></i>
@@ -507,7 +509,7 @@
 
                     <div class="col-4">
                         <div class="input-group clockpicker">
-                            <input type="text" name="sat-time-start[]" id="sat-time-start" class="form-control" value="{{ $arrangedSchedules[6][0]['start_time'] ?? null }}">
+                            <input type="text" name="sat-time-start[]" id="sat-time-start" class="form-control" value="{{ $arrangedSchedules[6]['start_time'] ?? '9:00' }}">
                             <div class="input-group-append">
                                 <span class="input-group-text">
                                     <i class="far fa-clock"></i>
@@ -522,7 +524,7 @@
                     </div>
                     <div class="col-4">
                         <div class="input-group clockpicker">
-                            <input type="text" name="sat-time-end[]" id="sat-time-end" class="form-control" value="{{ $arrangedSchedules[6][0]['end_time'] ?? null }}">
+                            <input type="text" name="sat-time-end[]" id="sat-time-end" class="form-control" value="{{ $arrangedSchedules[6]['end_time'] ?? '14:00' }}">
                             <div class="input-group-append">
                                 <span class="input-group-text">
                                     <i class="far fa-clock"></i>
@@ -572,6 +574,7 @@
         </div>
 
     </div>
+    @endif
 </div>
 
 <div class="mt-3">
