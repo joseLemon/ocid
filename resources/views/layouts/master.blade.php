@@ -18,17 +18,23 @@
     @yield('header')
     <script src={{ asset('js/app.js') }}></script>
     <script>
-        $.ajaxSetup({
-            headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')}
-        });
+        (() => {
+            $.ajaxSetup({
+                headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')}
+            });
+        })();
     </script>
 </head>
 <body>
 
 <div class="container-fluid">
     <div class="row">
-        <div class="side-menu col-auto">
+        <div class="side-menu col-auto p-0">
+            <div class="menu-toggle">
+                <button class="toggler d-lg-none"><i class="fas fa-bars"></i></button>
+            </div>
             <div class="fixed-top">
+                <button class="toggler d-lg-none"><i class="fas fa-bars"></i></button>
                 <img src="../img/logo_white.png" alt="" class="nav-img">
                 <ul>
                     <li class="side-nav-item">
@@ -88,25 +94,25 @@
                         </li>
                     @endcanany
                     @canany(['read-users', 'create-users'])
-                    <li class="side-nav-item">
-                        <button class="btn side-nav-link" aria-expanded="false">
-                            <i class="fas fa-user-md"></i>
-                            <span> Médicos </span>
-                            <span class="fas fa-chevron-right"></span>
-                        </button>
-                        <ul class="side-nav-second-level collapse" aria-expanded="false">
-                            @if(auth()->user()->can('create-users'))
-                                <li>
-                                    <a href="/doctor">Agregar</a>
-                                </li>
-                            @endif
-                            @if(auth()->user()->can('read-users'))
-                                <li>
-                                    <a href="/doctors">Ver</a>
-                                </li>
-                            @endif
-                        </ul>
-                    </li>
+                        <li class="side-nav-item">
+                            <button class="btn side-nav-link" aria-expanded="false">
+                                <i class="fas fa-user-md"></i>
+                                <span> Médicos </span>
+                                <span class="fas fa-chevron-right"></span>
+                            </button>
+                            <ul class="side-nav-second-level collapse" aria-expanded="false">
+                                @if(auth()->user()->can('create-users'))
+                                    <li>
+                                        <a href="/doctor">Agregar</a>
+                                    </li>
+                                @endif
+                                @if(auth()->user()->can('read-users'))
+                                    <li>
+                                        <a href="/doctors">Ver</a>
+                                    </li>
+                                @endif
+                            </ul>
+                        </li>
                     @endcanany
                     @canany(['read-branches', 'create-branches'])
                         <li class="side-nav-item">
@@ -208,6 +214,17 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.7/js/select2.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.3.2/jquery-confirm.min.js"></script>
 <script>
+    (() => {
+        $('.toggler').click(function () {
+            console.log('here');
+            let menu = $('.side-menu .fixed-top');
+
+            if (menu.hasClass('active'))
+                menu.removeClass('active');
+            else
+                menu.addClass('active');
+        });
+    })();
     let generateUUID = () => {
             return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
                 let r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
